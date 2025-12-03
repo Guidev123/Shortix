@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{C14A2975-BB15-413B-AEC8-FB154AF1CDDA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "urlShortener", "urlShortener", "{BCFFC810-DA1D-4EFB-A736-C5F2E8A0119E}"
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C14A2975-BB15-413B-AEC8-FB154AF1CDDA} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{BCFFC810-DA1D-4EFB-A736-C5F2E8A0119E} = {C14A2975-BB15-413B-AEC8-FB154AF1CDDA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F0F69441-2102-45E5-9393-C4EB5678D0EE}
+	EndGlobalSection
+EndGlobal
