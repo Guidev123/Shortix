@@ -30,7 +30,7 @@ jobs:
         path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy-dev:
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: build
     environment: Development
     steps:
