@@ -38,10 +38,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ vars.API_RESOURCE_NAME }}
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
           package: .
