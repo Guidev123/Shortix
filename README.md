@@ -15,7 +15,7 @@ az login
 ## Create RG
 
 ```bash
-az group create --name shortix-urlshortener-dev-rg --location eastus2
+az group create --name shortix-urlshortener-dev-rg --location eastus
 ```
 
 ## Deploy a template
@@ -37,3 +37,9 @@ az ad sp create-for-rbac --name "Github-Actions-SP" --role contributor --scopes 
 ## Configure a federated identity credential on an app
 
 https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation-create-trust?pivots=identity-wif-apps-methods-azp#configure-a-federated-identity-credential-on-an-app
+
+## Get Azure Api Publish Profile
+
+```bash
+az webapp deployment list-publishing-profiles --name urlShortenerApi-u2p6n2p7fdfz2 --resource-group shortix-urlshortener-dev-rg --xml
+```
