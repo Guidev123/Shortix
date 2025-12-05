@@ -1,12 +1,12 @@
 param location string = resourceGroup().location
 
-var uniqueId = uniqueString(resourceGroup().id)
+param environment string
 
 module urlShortenerApiService 'modules/compute/appservice.bicep' = {
   name: 'urlShortenerApiDeployment'
   params: {
-    appName: 'urlShortenerApi-${uniqueId}'
-    appServicePlanName: 'plan-urlShortenerApi-${uniqueId}'
+    appName: 'urlShortenerApi-${environment}'
+    appServicePlanName: 'plan-urlShortenerApi-${environment}'
     location: location
   }
 }
