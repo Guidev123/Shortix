@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch: # manual trigger
 
 jobs:
   build:
@@ -42,7 +43,8 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: urlShortenerApi-dev
+          app-name: ${{ vars.API_RESOURCE_NAME }}
+          slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
           package: .
 
