@@ -28,7 +28,6 @@ jobs:
       with:
         name: .net-app
         path: ${{env.DOTNET_ROOT}}/myapp
-
   deploy-dev:
     runs-on: ubuntu-latest
     needs: build
@@ -39,17 +38,45 @@ jobs:
         with:
           name: .net-app
 
-      - uses: actions/checkout@v4
-      - name: Azure login
-        uses: azure/login@v2.1.1
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
         with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          app-name: ${{ vars.API_RESOURCE_NAME }}
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+          package: .
+  deploy-stg:
+    runs-on: ubuntu-latest
+    needs: deploy-dev
+    environment: Staging
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ vars.API_RESOURCE_NAME }}
           slot-name: 'Production'
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+          package: .
+  deploy-prd:
+    runs-on: ubuntu-latest
+    needs: deploy-stg
+    environment: Production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.API_RESOURCE_NAME }}
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
           package: .
