@@ -41,5 +41,5 @@ https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation
 ## Get Azure Api Publish Profile
 
 ```bash
-az webapp deployment list-publishing-profiles --name urlShortenerApi-u2p6n2p7fdfz2 --resource-group shortix-urlshortener-dev-rg --xml
+az webapp deployment list-publishing-profiles --name urlShortenerApi-dev --resource-group shortix-urlshortener-dev-rg --xml
 ```
