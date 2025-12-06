@@ -30,7 +30,7 @@ resource webAppConfig 'Microsoft.Web/sites/config@2025-03-01' = {
   parent: webApp
   name: 'web'
   properties: {
-    scmType: 'Github'
+    scmType: 'GitHub'
   }
 }
 
