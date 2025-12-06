@@ -11,24 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.x
-    
     - name: Restore dependencies
       run: dotnet restore
-    
     - name: Build
       run: dotnet build --no-restore
-    
     - name: Test
       run: dotnet test --no-build --verbosity normal
-    
     - name: dotnet publish
       run: dotnet publish ./src/Services/UrlShortener/Shortix.UrlShortener.WebApi -c Release -o ${{env.DOTNET_ROOT}}/myapp
-    
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v4
       with:
@@ -44,18 +38,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ vars.API_RESOURCE_NAME }}
+          app-name: ${{ vars.URL_SHORTENER_API_RESOURCE_NAME }}
           package: .
-      
       - name: Logout from Azure
         run: az logout
         if: always()
@@ -69,18 +60,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ vars.API_RESOURCE_NAME }}
+          app-name: ${{ vars.URL_SHORTENER_API_RESOURCE_NAME }}
           package: .
-      
       - name: Logout from Azure
         run: az logout
         if: always()
@@ -95,18 +83,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ vars.API_RESOURCE_NAME }}
+          app-name: ${{ vars.URL_SHORTENER_API_RESOURCE_NAME }}
           package: .
-      
       - name: Logout from Azure
         run: az logout
         if: always()
