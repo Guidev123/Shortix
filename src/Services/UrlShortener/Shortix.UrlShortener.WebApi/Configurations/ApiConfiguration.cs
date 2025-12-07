@@ -6,11 +6,25 @@ namespace Shortix.UrlShortener.WebApi.Configurations
     {
         private const string KeyVaultName = "KeyVaultName";
 
-        public static void AddApiConfiguration(this WebApplicationBuilder builder)
-            => builder
+        public static WebApplicationBuilder AddApiConfiguration(this WebApplicationBuilder builder)
+        {
+            builder
                 .AddKeyVault()
                 .Services
                 .AddOpenApi();
+
+            return builder;
+        }
+
+        public static WebApplication UseApiConfiguration(this WebApplication app)
+        {
+            if (app.Environment.IsDevelopment())
+            {
+                app.MapOpenApi();
+            }
+
+            return app;
+        }
 
         private static WebApplicationBuilder AddKeyVault(this WebApplicationBuilder builder)
         {

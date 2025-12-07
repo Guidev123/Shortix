@@ -1,20 +1,7 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Shortix.UrlShortener.WebApi.Configurations;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args).AddApiConfiguration();
 
-builder.AddApiConfiguration();
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.MapGet("healthz", () =>
-{
-    return Results.Ok("Health!");
-});
+var app = builder.Build().UseApiConfiguration();
 
 app.Run();
