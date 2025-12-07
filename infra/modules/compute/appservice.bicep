@@ -28,6 +28,9 @@ resource webApp 'Microsoft.Web/sites@2025-03-01' = {
       ]
     }
   }
+  identity: {
+    type: 'SystemAssigned'
+  }
 }
 
 resource webAppConfig 'Microsoft.Web/sites/config@2025-03-01' = {
@@ -39,4 +42,4 @@ resource webAppConfig 'Microsoft.Web/sites/config@2025-03-01' = {
 }
 
 output appServiceId string = webApp.id
-output appServicePrincipalId string = webApp.identity.principalId
+output principalId string = webApp.identity.principalId
