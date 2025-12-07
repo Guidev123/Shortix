@@ -1,10 +1,11 @@
 param location string = resourceGroup().location
 param environment string
+param uniqueSuffix string = uniqueString(resourceGroup().id)
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
   params: {
-    vaultName: 'kv-${environment}'
+    vaultName: 'kv-${uniqueSuffix}'
     location: location
   }
 }
