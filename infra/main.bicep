@@ -15,5 +15,23 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
     appName: 'urlShortenerApi-${environment}'
     appServicePlanName: 'plan-urlShortenerApi-${environment}'
     location: location
+    keyVaultName: keyVault.outputs.name
   }
+  dependsOn: [
+    keyVault
+  ]
+}
+
+module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
+  name: 'keyVaultRoleAssignmentDeployment'
+  params: {
+    keyVaultname: keyVault.outputs.name
+    principalIds: [
+      urlShortenerApiService.outputs.appServiceId
+    ]
+  }
+  dependsOn: [
+    keyVault
+    urlShortenerApiService
+  ]
 }
