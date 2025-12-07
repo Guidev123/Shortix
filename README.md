@@ -34,6 +34,14 @@ az deployment group create --resource-group shortix-urlshortener-dev-rg --templa
 az ad sp create-for-rbac --name "Github-Actions-SP" --role contributor --scopes /subscriptions/{subscriptionId} --sdk-auth
 ```
 
+## Apply to Custom Contributor Role
+
+```bash
+az ad sp create-for-rbac --name "Github-Actions-SP" --role infra_deploy --scopes /subscriptions/{subscriptionId} --sdk-auth
+
+az role assignment list --assignee {AppId} --output table
+```
+
 ## Configure a federated identity credential on an app
 
 https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation-create-trust?pivots=identity-wif-apps-methods-azp#configure-a-federated-identity-credential-on-an-app

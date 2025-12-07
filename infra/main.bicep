@@ -1,6 +1,13 @@
 param location string = resourceGroup().location
-
 param environment string
+
+module keyVault 'modules/secrets/keyvault.bicep' = {
+  name: 'keyVaultDeployment'
+  params: {
+    vaultName: 'kv-${environment}'
+    location: location
+  }
+}
 
 module urlShortenerApiService 'modules/compute/appservice.bicep' = {
   name: 'urlShortenerApiDeployment'
@@ -8,5 +15,23 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
     appName: 'urlShortenerApi-${environment}'
     appServicePlanName: 'plan-urlShortenerApi-${environment}'
     location: location
+    keyVaultName: keyVault.outputs.name
   }
+  dependsOn: [
+    keyVault
+  ]
+}
+
+module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
+  name: 'keyVaultRoleAssignmentDeployment'
+  params: {
+    keyVaultname: keyVault.outputs.name
+    principalIds: [
+      urlShortenerApiService.outputs.appServiceId
+    ]
+  }
+  dependsOn: [
+    keyVault
+    urlShortenerApiService
+  ]
 }

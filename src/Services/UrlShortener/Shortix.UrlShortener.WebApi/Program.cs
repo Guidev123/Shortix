@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using Shortix.UrlShortener.WebApi.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+builder.AddApiConfiguration();
 
 var app = builder.Build();
 
