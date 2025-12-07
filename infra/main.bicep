@@ -25,7 +25,7 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
   params: {
     keyVaultname: keyVault.outputs.name
     principalIds: [
-      urlShortenerApiService.outputs.principalId
+      urlShortenerApiService.outputs.appServicePrincipalId
     ]
   }
 }
