@@ -18,9 +18,6 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
     location: location
     keyVaultName: keyVault.outputs.name
   }
-  dependsOn: [
-    keyVault
-  ]
 }
 
 module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
@@ -28,11 +25,7 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
   params: {
     keyVaultname: keyVault.outputs.name
     principalIds: [
-      urlShortenerApiService.outputs.appServiceId
+      urlShortenerApiService.outputs.principalId
     ]
   }
-  dependsOn: [
-    keyVault
-    urlShortenerApiService
-  ]
 }
