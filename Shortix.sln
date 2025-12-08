@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 18
-VisualStudioVersion = 18.3.11222.16
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -14,6 +14,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shortix.UrlShortener.Core", "src\Services\UrlShortener\Shortix.UrlShortener.Core\Shortix.UrlShortener.Core.csproj", "{CD40F883-0917-488B-ADBF-BB1814C7A4E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shortix.UrlShortener.Infrastructure", "src\Services\UrlShortener\Shortix.UrlShortener.Infrastructure\Shortix.UrlShortener.Infrastructure.csproj", "{9298E259-E785-4B5E-B626-A883FDBAA46C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{47DEEBF6-DDFD-4E33-88BA-E5DA6E2413A2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{2CA438FC-BF13-44E8-8C41-EA4CF14BD6C8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "urlShortener", "urlShortener", "{4733B449-C5AF-492D-8034-32846DE1D6CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shortix.UrlShortener.Core.Tests", "tests\Services\UrlShortener\Shortix.UrlShortener.Core.Tests\Shortix.UrlShortener.Core.Tests.csproj", "{441771DA-9BC0-4057-8594-8A1FC6478615}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +41,10 @@ Global
 		{9298E259-E785-4B5E-B626-A883FDBAA46C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9298E259-E785-4B5E-B626-A883FDBAA46C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9298E259-E785-4B5E-B626-A883FDBAA46C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{441771DA-9BC0-4057-8594-8A1FC6478615}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{441771DA-9BC0-4057-8594-8A1FC6478615}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{441771DA-9BC0-4057-8594-8A1FC6478615}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{441771DA-9BC0-4057-8594-8A1FC6478615}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,6 +55,9 @@ Global
 		{A3D94914-D402-4099-AED0-479C1FCD74DE} = {BCFFC810-DA1D-4EFB-A736-C5F2E8A0119E}
 		{CD40F883-0917-488B-ADBF-BB1814C7A4E8} = {BCFFC810-DA1D-4EFB-A736-C5F2E8A0119E}
 		{9298E259-E785-4B5E-B626-A883FDBAA46C} = {BCFFC810-DA1D-4EFB-A736-C5F2E8A0119E}
+		{2CA438FC-BF13-44E8-8C41-EA4CF14BD6C8} = {47DEEBF6-DDFD-4E33-88BA-E5DA6E2413A2}
+		{4733B449-C5AF-492D-8034-32846DE1D6CA} = {2CA438FC-BF13-44E8-8C41-EA4CF14BD6C8}
+		{441771DA-9BC0-4057-8594-8A1FC6478615} = {4733B449-C5AF-492D-8034-32846DE1D6CA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0F69441-2102-45E5-9393-C4EB5678D0EE}
