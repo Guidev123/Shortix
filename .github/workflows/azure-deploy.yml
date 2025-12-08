@@ -1,16 +1,6 @@
 name: Azure Deploy
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - infra/**
-  pull_request:
-    branches: 
-      - main
-    paths:
-      - infra/**
   workflow_dispatch: # manual trigger
 
 permissions:
