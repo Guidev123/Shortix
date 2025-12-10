@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BuildingBlocks\Shortix.Commons.Infrastructure\Shortix.Commons.Infrastructure.csproj" />
-    <ProjectReference Include="..\Shortix.UrlShortener.Core\Shortix.UrlShortener.Core.csproj" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="MidR" Version="4.0.0" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
   </ItemGroup>
 
 </Project>
