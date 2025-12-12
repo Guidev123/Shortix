@@ -1,8 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MidR.DependencyInjection;
 using Shortix.Commons.Core.Behaviors;
 using Shortix.UrlShortener.Core;
+using Shortix.UrlShortener.Core.Interfaces;
+using Shortix.UrlShortener.Infrastructure.Data.Repositories;
+using Shortix.UrlShortener.Infrastructure.Services;
 
 namespace Shortix.UrlShortener.Infrastructure
 {
@@ -15,6 +20,11 @@ namespace Shortix.UrlShortener.Infrastructure
                 behaviors.AddBehavior(typeof(LoggingBehavior<,>)).WithPriority(1);
                 behaviors.AddBehavior(typeof(ValidationBehavior<,>)).WithPriority(2);
             });
+            services.AddValidatorsFromAssembly(AssemblyReference.Assembly, includeInternalTypes: true);
+
+            services.AddTransient<IShortUrlGeneratorService, ShortUrlGeneratorService>();
+            services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IUrlRepository, UrlRepository>();
 
             return services;
         }

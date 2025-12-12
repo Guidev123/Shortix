@@ -5,6 +5,7 @@ using Shortix.Commons.Infrastructure.Middlewares;
 using Serilog;
 using Microsoft.Extensions.Configuration;
 using Azure.Identity;
+using Shortix.Commons.Infrastructure.Extensions;
 
 namespace Shortix.Commons.Infrastructure
 {
@@ -14,6 +15,8 @@ namespace Shortix.Commons.Infrastructure
 
         public static WebApplicationBuilder AddCommonConfiguration(this WebApplicationBuilder builder)
         {
+            builder.Services.AddSingleton(TimeProvider.System);
+
             builder.AddExceptionHandler();
 
             builder.Services.AddOpenApi();
@@ -50,6 +53,8 @@ namespace Shortix.Commons.Infrastructure
         public static WebApplication UseCommonPipeline(this WebApplication app)
         {
             app.UseExceptionHandler();
+
+            app.MapEndpoints();
 
             if (app.Environment.IsDevelopment())
             {

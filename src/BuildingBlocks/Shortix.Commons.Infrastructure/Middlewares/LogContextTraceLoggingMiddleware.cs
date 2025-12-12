@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Serilog.Context;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace Shortix.Commons.Infrastructure.Middlewares
 {

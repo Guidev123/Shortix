@@ -1,8 +1,8 @@
-﻿namespace Shortix.UrlShortener.Core
+﻿namespace Shortix.UrlShortener.Core.DTOs
 {
-    public sealed record TokenRange
+    public sealed record TokenRangeRequest
     {
-        public TokenRange(long start, long end)
+        public TokenRangeRequest(long start, long end)
         {
             if (end < start)
             {

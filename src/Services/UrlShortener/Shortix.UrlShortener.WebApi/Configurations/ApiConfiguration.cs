@@ -1,4 +1,5 @@
-﻿using Shortix.Commons.Infrastructure;
+﻿using Microsoft.OpenApi;
+using Shortix.Commons.Infrastructure;
 using Shortix.Commons.Infrastructure.Extensions;
 using Shortix.UrlShortener.Infrastructure;
 
@@ -10,6 +11,8 @@ namespace Shortix.UrlShortener.WebApi.Configurations
         {
             builder.AddCommonConfiguration();
 
+            builder.AddSwaggerConfig();
+
             builder.Services.AddEndpoints(typeof(ApiConfiguration).Assembly);
 
             builder.Services.AddInfrastructureModule(builder.Configuration);
@@ -19,7 +22,7 @@ namespace Shortix.UrlShortener.WebApi.Configurations
 
         public static WebApplication UseApiConfiguration(this WebApplication app)
         {
-            app.UseCommonPipeline();
+            app.UseCommonPipeline().UseSwaggerConfig();
 
             return app;
         }
