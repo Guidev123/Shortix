@@ -20,6 +20,18 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
   }
 }
 
+module cosmosDb 'modules/storage/cosmosdb.bicep' = {
+  name: 'cosmosDbDeployment'
+  params: {
+    name: 'cosmos-db-${environment}'
+    location: location
+    kind: 'GlobalDocumentDB'
+    databaseName: 'UrlShortenerDb'
+    locationName: 'East US'
+    keyVaultName: keyVault.outputs.name
+  }
+}
+
 module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
   name: 'keyVaultRoleAssignmentDeployment'
   params: {
