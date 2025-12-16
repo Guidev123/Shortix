@@ -1,0 +1,22 @@
+services:
+  cosmosdb:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    container_name: cosmos-db-dev
+    hostname: cosmosdb
+    ports:
+      - "8081:8081" # UI Admin https://localhost:8081/_explorer/index.html
+      - "10250-10255:10250-10255"
+    environment:
+      AZURE_COSMOS_EMULATOR_PARTITION_COUNT: 1
+      AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: "true"
+    volumes:
+      - cosmos-data:/data
+    networks:
+      - private-net
+
+volumes:
+  cosmos-data:
+
+networks:
+  private-net:
+    driver: bridge

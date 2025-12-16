@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using MidR.DependencyInjection;
 using Shortix.Commons.Core.Behaviors;
 using Shortix.UrlShortener.Core;
@@ -15,16 +15,36 @@ namespace Shortix.UrlShortener.Infrastructure
     {
         public static IServiceCollection AddInfrastructureModule(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddCosmosDb(configuration);
+
             services.AddMidR(AssemblyReference.Assembly).WithBehaviors(behaviors =>
             {
                 behaviors.AddBehavior(typeof(LoggingBehavior<,>)).WithPriority(1);
                 behaviors.AddBehavior(typeof(ValidationBehavior<,>)).WithPriority(2);
             });
+
             services.AddValidatorsFromAssembly(AssemblyReference.Assembly, includeInternalTypes: true);
 
-            services.AddTransient<IShortUrlGeneratorService, ShortUrlGeneratorService>();
-            services.AddTransient<ITokenService, TokenService>();
+            services.AddSingleton<ITokenService, TokenService>();
             services.AddTransient<IUrlRepository, UrlRepository>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddCosmosDb(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton<CosmosClient>(c =>
+                new(configuration["CosmosDb:ConnectionString"]!));
+
+            services.AddSingleton<IUrlRepository>(c =>
+            {
+                var cosmosClient = c.GetRequiredService<CosmosClient>();
+                var container = cosmosClient.GetContainer(
+                    configuration["CosmosDb:DatabaseName"]!,
+                    configuration["CosmosDb:ContainerName"]!);
+
+                return new UrlRepository(container);
+            });
 
             return services;
         }

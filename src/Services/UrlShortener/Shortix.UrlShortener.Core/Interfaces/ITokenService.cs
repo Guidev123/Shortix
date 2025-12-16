@@ -5,10 +5,10 @@ namespace Shortix.UrlShortener.Core.Interfaces
 {
     public interface ITokenService
     {
-        Task<Result> AssignRangeAsync(long start, long end, CancellationToken cancellationToken = default);
+        Result<long> GetToken();
 
-        Task<Result> AssignRangeAsync(TokenRangeRequest tokenRange, CancellationToken cancellationToken = default);
+        void AssignRange(TokenRangeRequest tokenRange);
 
-        Task<Result<TokenRangeResponse>> GetTokenAsync(CancellationToken cancellationToken = default);
+        void AssignRange(int start, int end);
     }
 }

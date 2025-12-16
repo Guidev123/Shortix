@@ -1,18 +1,20 @@
 ﻿using Shortix.Commons.Core.Messaging;
 using Shortix.Commons.Core.Results;
+using Shortix.UrlShortener.Core.DTOs;
+using Shortix.UrlShortener.Core.Extensions;
 using Shortix.UrlShortener.Core.Interfaces;
 using Shortix.UrlShortener.Core.Models;
 
 namespace Shortix.UrlShortener.Core.UseCases.Urls.Add
 {
     internal sealed class AddUrlCommandHandler(
-        IShortUrlGeneratorService shortUrlGeneratorService,
         IUrlRepository urlRepository,
+        ITokenService tokenService,
         TimeProvider timeProvider) : ICommandHandler<AddUrlCommand, AddUrlResponse>
     {
         public async Task<Result<AddUrlResponse>> ExecuteAsync(AddUrlCommand request, CancellationToken cancellationToken = default)
         {
-            var uniqueUrlResult = await shortUrlGeneratorService.GenerateUniqueUrlAsync(cancellationToken);
+            var uniqueUrlResult = GenerateUniqueUrl();
 
             var longUrlUriFormat = new Uri(request.LongUrl);
 
@@ -21,6 +23,17 @@ namespace Shortix.UrlShortener.Core.UseCases.Urls.Add
             await urlRepository.AddAsync(shortenedUrl, cancellationToken);
 
             return new AddUrlResponse(uniqueUrlResult.Value.UniqueUrl, longUrlUriFormat);
+        }
+
+        private Result<UniqueUrlResponse> GenerateUniqueUrl()
+        {
+            var tokenResult = tokenService.GetToken();
+            if (tokenResult.IsFailure)
+            {
+                return Result.Failure<UniqueUrlResponse>(tokenResult.Error!);
+            }
+
+            return new UniqueUrlResponse(tokenResult.Value.EncodeToBase62());
         }
     }
 }

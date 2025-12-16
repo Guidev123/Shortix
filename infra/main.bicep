@@ -17,6 +17,16 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
     appServicePlanName: 'plan-urlShortenerApi-${environment}'
     location: location
     keyVaultName: keyVault.outputs.name
+    appSettings: [
+      {
+        name: 'CosmosDb--DatabaseName'
+        value: 'cosmos-db-${environment}'
+      }
+      {
+        name: 'CosmosDb--ContainerName'
+        value: 'items'
+      }
+    ]
   }
 }
 

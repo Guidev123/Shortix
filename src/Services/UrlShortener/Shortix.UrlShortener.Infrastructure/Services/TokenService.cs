@@ -1,29 +1,75 @@
 ﻿using Shortix.Commons.Core.Results;
 using Shortix.UrlShortener.Core.DTOs;
 using Shortix.UrlShortener.Core.Interfaces;
+using System.Collections.Concurrent;
 
 namespace Shortix.UrlShortener.Infrastructure.Services
 {
     internal sealed class TokenService : ITokenService
     {
-        private TokenRangeRequest? _tokenRange;
+        private readonly Lock _tokenLock = new();
+        private readonly ConcurrentQueue<TokenRangeRequest> _ranges = new();
 
-        public Task<Result> AssignRangeAsync(long start, long end, CancellationToken cancellationToken = default)
+        private long _currentToken = 0;
+        private TokenRangeRequest? _currentTokenRange;
+
+        public void AssignRange(int start, int end)
         {
-            _tokenRange = new TokenRangeRequest(start, end);
-            return Task.FromResult(Result.Success());
+            AssignRange(new TokenRangeRequest(start, end));
         }
 
-        public Task<Result> AssignRangeAsync(TokenRangeRequest tokenRange, CancellationToken cancellationToken = default)
+        public void AssignRange(TokenRangeRequest tokenRange)
         {
-            _tokenRange = tokenRange;
-
-            return Task.FromResult(Result.Success());
+            _ranges.Enqueue(tokenRange);
         }
 
-        public Task<Result<TokenRangeResponse>> GetTokenAsync(CancellationToken cancellationToken = default)
+        public Result<long> GetToken()
         {
-            return Task.FromResult(Result.Success(new TokenRangeResponse(_tokenRange.Start)));
+            lock (_tokenLock)
+            {
+                if (_currentTokenRange is null)
+                    MoveToNextRange();
+
+                if (_currentToken > _currentTokenRange?.End)
+                    MoveToNextRange();
+
+                if (IsReachingRangeLimit())
+                    OnRangeThresholdReached(new ReachingRangeLimitEventArgs()
+                    {
+                        RangeLimit = _currentTokenRange!.End,
+                        Token = _currentToken
+                    });
+
+                return _currentToken++;
+            }
         }
+
+        private bool IsReachingRangeLimit()
+        {
+            var currentIndex = _currentToken + 1 - _currentTokenRange!.Start;
+            var total = _currentTokenRange.End - _currentTokenRange.Start;
+            return currentIndex >= total * 0.8;
+        }
+
+        private event EventHandler? ReachingRangeLimit;
+
+        private void OnRangeThresholdReached(EventArgs e)
+        {
+            ReachingRangeLimit?.Invoke(this, e);
+        }
+
+        private void MoveToNextRange()
+        {
+            if (!_ranges.TryDequeue(out _currentTokenRange))
+                throw new IndexOutOfRangeException();
+
+            _currentToken = _currentTokenRange.Start;
+        }
+    }
+
+    internal sealed class ReachingRangeLimitEventArgs : EventArgs
+    {
+        public long Token { get; set; }
+        public long RangeLimit { get; set; }
     }
 }
