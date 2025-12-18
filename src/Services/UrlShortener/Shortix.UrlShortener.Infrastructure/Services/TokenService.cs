@@ -28,17 +28,23 @@ namespace Shortix.UrlShortener.Infrastructure.Services
             lock (_tokenLock)
             {
                 if (_currentTokenRange is null)
+                {
                     MoveToNextRange();
+                }
 
                 if (_currentToken > _currentTokenRange?.End)
+                {
                     MoveToNextRange();
+                }
 
                 if (IsReachingRangeLimit())
+                {
                     OnRangeThresholdReached(new ReachingRangeLimitEventArgs()
                     {
                         RangeLimit = _currentTokenRange!.End,
                         Token = _currentToken
                     });
+                }
 
                 return _currentToken++;
             }
@@ -48,6 +54,7 @@ namespace Shortix.UrlShortener.Infrastructure.Services
         {
             var currentIndex = _currentToken + 1 - _currentTokenRange!.Start;
             var total = _currentTokenRange.End - _currentTokenRange.Start;
+
             return currentIndex >= total * 0.8;
         }
 
@@ -61,7 +68,9 @@ namespace Shortix.UrlShortener.Infrastructure.Services
         private void MoveToNextRange()
         {
             if (!_ranges.TryDequeue(out _currentTokenRange))
+            {
                 throw new IndexOutOfRangeException();
+            }
 
             _currentToken = _currentTokenRange.Start;
         }

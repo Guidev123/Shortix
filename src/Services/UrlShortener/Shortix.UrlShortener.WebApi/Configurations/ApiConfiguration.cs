@@ -1,5 +1,4 @@
-﻿using Microsoft.OpenApi;
-using Shortix.Commons.Infrastructure;
+﻿using Shortix.Commons.Infrastructure;
 using Shortix.Commons.Infrastructure.Extensions;
 using Shortix.UrlShortener.Infrastructure;
 
