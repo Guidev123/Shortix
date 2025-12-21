@@ -14,7 +14,7 @@ namespace Shortix.UrlShortener.WebApi.Configurations
 
             builder.Services.AddEndpoints(typeof(ApiConfiguration).Assembly);
 
-            builder.Services.AddInfrastructureModule(builder.Configuration);
+            builder.Services.AddInfrastructureModule(builder.Configuration, builder.Environment);
 
             return builder;
         }

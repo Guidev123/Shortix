@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using MidR.DependencyInjection;
 using Shortix.Commons.Core.Behaviors;
 using Shortix.UrlShortener.Core;
@@ -13,9 +15,9 @@ namespace Shortix.UrlShortener.Infrastructure
 {
     public static class InfrastructureModule
     {
-        public static IServiceCollection AddInfrastructureModule(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructureModule(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
         {
-            services.AddCosmosDb(configuration);
+            services.AddCosmosDb(configuration, environment);
 
             services.AddMidR(AssemblyReference.Assembly).WithBehaviors(behaviors =>
             {
@@ -31,20 +33,46 @@ namespace Shortix.UrlShortener.Infrastructure
             return services;
         }
 
-        private static IServiceCollection AddCosmosDb(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddCosmosDb(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            IWebHostEnvironment environment)
         {
-            services.AddSingleton<CosmosClient>(c =>
-                new(configuration["CosmosDb:ConnectionString"]!));
-
-            services.AddSingleton<IUrlRepository>(c =>
+            services.AddSingleton(_ =>
             {
-                var cosmosClient = c.GetRequiredService<CosmosClient>();
-                var container = cosmosClient.GetContainer(
+                if (environment.IsDevelopment())
+                {
+                    var cosmosClientOptions = new CosmosClientOptions
+                    {
+                        ConnectionMode = ConnectionMode.Gateway,
+                        LimitToEndpoint = true
+                    };
+
+                    var httpClientHandler = new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback =
+                            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };
+
+                    cosmosClientOptions.HttpClientFactory = () =>
+                        new HttpClient(httpClientHandler);
+
+                    return new CosmosClient(configuration["CosmosDb:ConnectionString"]!, cosmosClientOptions);
+                }
+
+                return new CosmosClient(configuration["CosmosDb:ConnectionString"]!);
+            });
+
+            services.AddSingleton(c =>
+            {
+                var client = c.GetRequiredService<CosmosClient>();
+
+                return client.GetContainer(
                     configuration["CosmosDb:DatabaseName"]!,
                     configuration["CosmosDb:ContainerName"]!);
-
-                return new UrlRepository(container);
             });
+
+            services.AddSingleton<IUrlRepository, UrlRepository>();
 
             return services;
         }

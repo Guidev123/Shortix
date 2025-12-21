@@ -51,3 +51,13 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
     ]
   }
 }
+
+module tokenRangeApiService 'modules/compute/appservice.bicep' = {
+  name: 'tokenRangeApiDeployment'
+  params: {
+    appName: 'tokenRangeApi-${environment}'
+    appServicePlanName: 'plan-tokenRangeApi-${environment}'
+    location: location
+    keyVaultName: keyVault.outputs.name
+  }
+}
