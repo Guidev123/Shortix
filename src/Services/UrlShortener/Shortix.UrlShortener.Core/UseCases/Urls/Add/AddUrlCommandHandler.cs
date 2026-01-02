@@ -32,8 +32,6 @@ namespace Shortix.UrlShortener.Core.UseCases.Urls.Add
 
         private Result<UniqueUrlResponse> GenerateUniqueUrl()
         {
-            tokenService.AssignRange(100000, 199999);
-
             var tokenResult = tokenService.GetToken();
             if (tokenResult.IsFailure)
             {
