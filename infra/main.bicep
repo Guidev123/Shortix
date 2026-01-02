@@ -2,7 +2,7 @@ param location string = resourceGroup().location
 param environment string
 param uniqueSuffix string = uniqueString(resourceGroup().id)
 @secure()
-param pgSqlPassowrd string
+param pgSqlPassword string
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
@@ -38,7 +38,7 @@ module postgresDb 'modules/storage/postgresql.bicep' = {
     name: 'postgres-db-${environment}'
     location: location
     administratorLogin: 'adminuser'
-    administratorLoginPassword: pgSqlPassowrd
+    administratorLoginPassword: pgSqlPassword
     keyVaultName: keyVault.outputs.name
   }
 }
