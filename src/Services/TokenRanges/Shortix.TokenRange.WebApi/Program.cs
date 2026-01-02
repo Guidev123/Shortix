@@ -1,12 +1,11 @@
-var builder = WebApplication.CreateBuilder(args);
+using Shortix.TokenRange.WebApi.Configurations;
 
-builder.Services.AddOpenApi();
+var builder = WebApplication
+    .CreateBuilder(args)
+    .AddApiConfiguration();
 
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+var app = builder
+    .Build()
+    .UseApiConfiguration();
 
 app.Run();
