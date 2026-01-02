@@ -1,8 +1,7 @@
 ﻿using Shortix.Commons.Infrastructure;
 using Shortix.Commons.Infrastructure.Extensions;
-using Shortix.UrlShortener.Infrastructure;
 
-namespace Shortix.UrlShortener.WebApi.Configurations
+namespace Shortix.TokenRange.WebApi.Configurations
 {
     public static class ApiConfiguration
     {
@@ -16,7 +15,6 @@ namespace Shortix.UrlShortener.WebApi.Configurations
 
                 builder.Services.AddEndpoints(typeof(ApiConfiguration).Assembly);
 
-                builder.Services.AddInfrastructureModule(builder.Configuration, builder.Environment);
 
                 return builder;
             }
