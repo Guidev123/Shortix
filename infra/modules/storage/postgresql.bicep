@@ -13,7 +13,7 @@ resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01'
     tier: 'Burstable'
   }
   properties: {
-    version: '18'
+    version: '16'
     storage: {
       storageSizeGB: 32
     }
@@ -28,10 +28,10 @@ resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01'
     name: 'Ranges'
   }
   resource firewallRules 'firewallRules' = {
-    name: 'allow-all-azure-internal-IPs'
+    name: 'AllowAllAzureServices'
     properties: {
       startIpAddress: '0.0.0.0'
-      endIpAddress: '0.0.0.0'
+      endIpAddress: '255.255.255.255'
     }
   }
 }

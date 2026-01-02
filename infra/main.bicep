@@ -21,11 +21,11 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
     keyVaultName: keyVault.outputs.name
     appSettings: [
       {
-        name: 'CosmosDb--DatabaseName'
+        name: 'CosmosDb__DatabaseName'
         value: 'cosmos-db-${environment}'
       }
       {
-        name: 'CosmosDb--ContainerName'
+        name: 'CosmosDb__ContainerName'
         value: 'items'
       }
     ]
@@ -46,7 +46,7 @@ module postgresDb 'modules/storage/postgresql.bicep' = {
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
   params: {
-    name: 'cosmos-db-${environment}'
+    name: 'cosmos-db-${uniqueSuffix}-${environment}'
     location: location
     kind: 'GlobalDocumentDB'
     databaseName: 'UrlShortenerDb'
