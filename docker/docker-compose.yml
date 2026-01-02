@@ -14,8 +14,24 @@ services:
     networks:
       - private-net
 
+  pgsql:
+    image: postgres:16
+    container_name: postgres-db-dev
+    hostname: pgsql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppassword
+    volumes:
+      - pgsql-data:/var/lib/postgresql/data
+    networks:
+      - private-net
+
 volumes:
   cosmos-data:
+  pgsql-data:
 
 networks:
   private-net:

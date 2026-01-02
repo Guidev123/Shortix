@@ -16,6 +16,11 @@ namespace Shortix.UrlShortener.Core.UseCases.Urls.Add
         {
             var uniqueUrlResult = GenerateUniqueUrl();
 
+            if (uniqueUrlResult.IsFailure)
+            {
+                return Result.Failure<AddUrlResponse>(uniqueUrlResult.Error!);
+            }
+
             var longUrlUriFormat = new Uri(request.LongUrl);
 
             var shortenedUrl = ShortenedUrl.Create(longUrlUriFormat, uniqueUrlResult.Value.UniqueUrl, request.CreatedBy, timeProvider.GetUtcNow());
@@ -27,6 +32,8 @@ namespace Shortix.UrlShortener.Core.UseCases.Urls.Add
 
         private Result<UniqueUrlResponse> GenerateUniqueUrl()
         {
+            tokenService.AssignRange(199999, 999999);
+
             var tokenResult = tokenService.GetToken();
             if (tokenResult.IsFailure)
             {

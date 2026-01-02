@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MidR.Interfaces;
+﻿using MidR.Interfaces;
 using Shortix.Commons.Core.Results;
 using Shortix.Commons.Infrastructure.Endpoints;
 using Shortix.Commons.Infrastructure.Extensions;
@@ -13,7 +12,7 @@ namespace Shortix.UrlShortener.WebApi.Endpoints
         {
             app.MapPost("api/v1/urls", async (AddUrlCommand command, ISender sender, CancellationToken cancellationToken) =>
             {
-                var result = await sender.SendAsync(command, cancellationToken);
+                var result = await sender.SendAsync(command.SetCreatedBy("guirafaelrn@gmail.com"), cancellationToken);
 
                 return result.Match(apiResult => Results.Created($"/api/v1/urls/{apiResult.ShortenedUrl}", apiResult.ShortenedUrl), ApiResults.Problem);
             });

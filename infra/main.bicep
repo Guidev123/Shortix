@@ -1,6 +1,8 @@
 param location string = resourceGroup().location
 param environment string
 param uniqueSuffix string = uniqueString(resourceGroup().id)
+@secure()
+param pgSqlPassowrd string
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
@@ -30,6 +32,17 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
   }
 }
 
+module postgresDb 'modules/storage/postgresql.bicep' = {
+  name: 'postgresDeployment'
+  params: {
+    name: 'postgres-db-${environment}'
+    location: location
+    administratorLogin: 'adminuser'
+    administratorLoginPassword: pgSqlPassowrd
+    keyVaultName: keyVault.outputs.name
+  }
+}
+
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
   params: {
@@ -49,5 +62,15 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
     principalIds: [
       urlShortenerApiService.outputs.principalId
     ]
+  }
+}
+
+module tokenRangeApiService 'modules/compute/appservice.bicep' = {
+  name: 'tokenRangeApiDeployment'
+  params: {
+    appName: 'tokenRangeApi-${environment}'
+    appServicePlanName: 'plan-tokenRangeApi-${environment}'
+    location: location
+    keyVaultName: keyVault.outputs.name
   }
 }

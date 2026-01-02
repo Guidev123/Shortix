@@ -1,6 +1,6 @@
 ﻿using Microsoft.OpenApi;
 
-namespace Shortix.UrlShortener.WebApi.Configurations
+namespace Shortix.TokenRange.WebApi.Configurations
 {
     public static class DocsConfiguration
     {
@@ -12,7 +12,7 @@ namespace Shortix.UrlShortener.WebApi.Configurations
                 {
                     c.SwaggerDoc("v1", new OpenApiInfo()
                     {
-                        Title = "Url Shortener",
+                        Title = "Token Range",
                         Contact = new OpenApiContact() { Name = "Guilherme Nascimento", Email = "guirafaelrn@gmail.com" },
                         License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://opensource.org/license/MIT") }
                     });

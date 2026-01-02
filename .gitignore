@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /src/Services/UrlShortener/Shortix.UrlShortener.WebApi/appsettings.Development.json
+/src/Services/TokenRanges/Shortix.TokenRange.WebApi/appsettings.Development.json

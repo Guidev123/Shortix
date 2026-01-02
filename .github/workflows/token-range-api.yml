@@ -1,14 +1,14 @@
-name: UrlShortnerApi
+name: TokenRangeApi
 
 on:
   push:
     branches: ["main"]
     paths:
-      - ./src/Services/UrlShortener/**
+      - ./src/Services/TokenRanges/**
   pull_request:
     branches: ["main"]
     paths:
-      - ./src/Services/UrlShortener/**
+      - ./src/Services/TokenRanges/**
 
 jobs:
   build:
@@ -26,7 +26,7 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal
       - name: dotnet publish
-        run: dotnet publish ./src/Services/UrlShortener/Shortix.UrlShortener.WebApi -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish ./src/Services/TokenRanges/Shortix.TokenRanges.WebApi -c Release -o ${{env.DOTNET_ROOT}}/myapp
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -49,7 +49,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ vars.URL_SHORTENER_API_RESOURCE_NAME }}
+          app-name: ${{ vars.TOKEN_RANGE_API_RESOURCE_NAME }}
           package: .
       - name: Logout from Azure
         run: az logout
@@ -71,7 +71,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ vars.URL_SHORTENER_API_RESOURCE_NAME }}
+          app-name: ${{ vars.TOKEN_RANGE_API_RESOURCE_NAME }}
           package: .
       - name: Logout from Azure
         run: az logout
@@ -94,7 +94,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ vars.URL_SHORTENER_API_RESOURCE_NAME }}
+          app-name: ${{ vars.TOKEN_RANGE_API_RESOURCE_NAME }}
           package: .
       - name: Logout from Azure
         run: az logout
