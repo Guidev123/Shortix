@@ -42,7 +42,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = {
 
 resource postgresDbConnectionString 'Microsoft.KeyVault/vaults/secrets@2025-05-01' = {
   parent: keyVault
-  name: 'Postgres--ConnectionString'
+  name: 'Postgres__ConnectionString'
   properties: {
     value: 'Server=${postgresqlServer.name}.postgres.database.azure.com;Database=Ranges;Port=5432;User Id=${administratorLogin};Password=${administratorLoginPassword};'
   }
