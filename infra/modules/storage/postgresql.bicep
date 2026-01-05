@@ -38,6 +38,7 @@ resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01'
 
 resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = {
   name: keyVaultName
+  scope: resourceGroup()
 }
 
 resource postgresDbConnectionString 'Microsoft.KeyVault/vaults/secrets@2025-05-01' = {

@@ -73,6 +73,7 @@ resource cosmosDbContainers 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/
 
 resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = {
   name: keyVaultName
+  scope: resourceGroup()
 }
 
 resource cosmosDbConnectionString 'Microsoft.KeyVault/vaults/secrets@2025-05-01' = {
