@@ -35,7 +35,7 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
 module postgresDb 'modules/storage/postgresql.bicep' = {
   name: 'postgresDeployment'
   params: {
-    name: 'postgres-db-${environment}'
+    name: 'postgres-db-${uniqueSuffix}-${environment}'
     location: location
     administratorLogin: 'adminuser'
     administratorLoginPassword: pgSqlPassword
