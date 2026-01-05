@@ -37,9 +37,6 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
 
 module postgresDb 'modules/storage/postgresql.bicep' = {
   name: 'postgresDeployment'
-  dependsOn: [
-    keyVault
-  ]
   params: {
     name: 'postgres-db-${uniqueSuffix}-${environment}'
     location: location
@@ -51,15 +48,12 @@ module postgresDb 'modules/storage/postgresql.bicep' = {
 
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
-  dependsOn: [
-    keyVault
-  ]
   params: {
     name: 'cosmos-db-${uniqueSuffix}-${environment}'
     location: location
     kind: 'GlobalDocumentDB'
     databaseName: 'UrlShortenerDb'
-    locationName: 'East US'
+    locationName: 'BrazilSouth'
     keyVaultName: keyVault.outputs.name
   }
 }
@@ -67,7 +61,6 @@ module cosmosDb 'modules/storage/cosmosdb.bicep' = {
 module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
   name: 'keyVaultRoleAssignmentDeployment'
   dependsOn: [
-    urlShortenerApiService
     tokenRangeApiService
   ]
   params: {
