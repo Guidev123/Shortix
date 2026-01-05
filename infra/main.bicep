@@ -14,6 +14,9 @@ module keyVault 'modules/secrets/keyvault.bicep' = {
 
 module urlShortenerApiService 'modules/compute/appservice.bicep' = {
   name: 'urlShortenerApiDeployment'
+  dependsOn: [
+    cosmosDb
+  ]
   params: {
     appName: 'urlShortenerApi-${environment}'
     appServicePlanName: 'plan-urlShortenerApi-${environment}'
@@ -34,6 +37,9 @@ module urlShortenerApiService 'modules/compute/appservice.bicep' = {
 
 module postgresDb 'modules/storage/postgresql.bicep' = {
   name: 'postgresDeployment'
+  dependsOn: [
+    keyVault
+  ]
   params: {
     name: 'postgres-db-${uniqueSuffix}-${environment}'
     location: location
@@ -45,6 +51,9 @@ module postgresDb 'modules/storage/postgresql.bicep' = {
 
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
+  dependsOn: [
+    keyVault
+  ]
   params: {
     name: 'cosmos-db-${uniqueSuffix}-${environment}'
     location: location
@@ -57,6 +66,10 @@ module cosmosDb 'modules/storage/cosmosdb.bicep' = {
 
 module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
   name: 'keyVaultRoleAssignmentDeployment'
+  dependsOn: [
+    urlShortenerApiService
+    tokenRangeApiService
+  ]
   params: {
     keyVaultname: keyVault.outputs.name
     principalIds: [
@@ -67,6 +80,9 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
 
 module tokenRangeApiService 'modules/compute/appservice.bicep' = {
   name: 'tokenRangeApiDeployment'
+  dependsOn: [
+    postgresDb
+  ]
   params: {
     appName: 'tokenRangeApi-${environment}'
     appServicePlanName: 'plan-tokenRangeApi-${environment}'
