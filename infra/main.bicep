@@ -60,13 +60,11 @@ module cosmosDb 'modules/storage/cosmosdb.bicep' = {
 
 module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
   name: 'keyVaultRoleAssignmentDeployment'
-  dependsOn: [
-    tokenRangeApiService
-  ]
   params: {
     keyVaultname: keyVault.outputs.name
     principalIds: [
       urlShortenerApiService.outputs.principalId
+      tokenRangeApiService.outputs.principalId
     ]
   }
 }
