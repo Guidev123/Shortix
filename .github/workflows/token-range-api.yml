@@ -4,11 +4,11 @@ on:
   push:
     branches: ["main"]
     paths:
-      - ./src/Services/TokenRanges/**
+      - src/Services/TokenRanges/**
   pull_request:
     branches: ["main"]
     paths:
-      - ./src/Services/TokenRanges/**
+      - src/Services/TokenRanges/**
 
 jobs:
   build:
@@ -46,6 +46,17 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Deploy Database Schema
+        env:
+          PGHOST: ${{ secrets.PGSQL_HOST }}
+          PGUSER: ${{ secrets.PGSQL_USER }}
+          PGPASSWORD: ${{ secrets.PGSQL_PASSWORD }}
+          PGDATABASE: ${{ secrets.PGSQL_NAME }}
+        run: psql -f sql/TokenRanges/TokenRangesTable.sql
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
@@ -68,6 +79,17 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Deploy Database Schema
+        env:
+          PGHOST: ${{ secrets.PGSQL_HOST }}
+          PGUSER: ${{ secrets.PGSQL_USER }}
+          PGPASSWORD: ${{ secrets.PGSQL_PASSWORD }}
+          PGDATABASE: ${{ secrets.PGSQL_NAME }}
+        run: psql -f sql/TokenRanges/TokenRangesTable.sql
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
@@ -91,6 +113,17 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Deploy Database Schema
+        env:
+          PGHOST: ${{ secrets.PGSQL_HOST }}
+          PGUSER: ${{ secrets.PGSQL_USER }}
+          PGPASSWORD: ${{ secrets.PGSQL_PASSWORD }}
+          PGDATABASE: ${{ secrets.PGSQL_NAME }}
+        run: psql -f sql/TokenRanges/TokenRangesTable.sql
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
