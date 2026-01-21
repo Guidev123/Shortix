@@ -11,6 +11,7 @@ resource keyvault 'Microsoft.KeyVault/vaults@2025-05-01' = {
     }
     enableRbacAuthorization: true
     tenantId: subscription().tenantId
+    enabledForTemplateDeployment: true
   }
 }
 
