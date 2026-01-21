@@ -42,10 +42,19 @@ module postgresDb 'modules/storage/postgresql.bicep' = {
     location: location
     administratorLogin: 'adminuser'
     administratorLoginPassword: pgSqlPassword
-    keyVaultName: keyVault.outputs.name
   }
 }
 
+module postgresSecret 'modules/secrets/postgres-secrets.bicep' = {
+  name: 'postgresSecretDeployment'
+  params: {
+    keyVaultName: keyVault.outputs.name
+    serverName: postgresDb.outputs.serverName
+    databaseName: postgresDb.outputs.databaseName
+    administratorLogin: 'adminuser'
+    administratorLoginPassword: pgSqlPassword
+  }
+}
 // module cosmosDb 'modules/storage/cosmosdb.bicep' = {
 //   name: 'cosmosDbDeployment'
 //   params: {

@@ -3,7 +3,6 @@ param location string
 param administratorLogin string
 @secure()
 param administratorLoginPassword string
-param keyVaultName string
 
 resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01' = {
   name: name
@@ -36,17 +35,6 @@ resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01'
   }
 }
 
-resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = {
-  name: keyVaultName
-  scope: resourceGroup()
-}
-
-resource postgresDbConnectionString 'Microsoft.KeyVault/vaults/secrets@2025-05-01' = {
-  parent: keyVault
-  name: 'Postgres__ConnectionString'
-  properties: {
-    value: 'Server=${postgresqlServer.name}.postgres.database.azure.com;Database=Ranges;Port=5432;User Id=${administratorLogin};Password=${administratorLoginPassword};'
-  }
-}
-
 output serverId string = postgresqlServer.id
+output serverName string = postgresqlServer.name
+output databaseName string = 'Ranges'
