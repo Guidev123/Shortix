@@ -56,15 +56,6 @@ module postgresSecret 'modules/secrets/postgres-secrets.bicep' = {
   }
 }
 
-module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
-  name: 'keyVaultRoleAssignmentDeployment'
-  params: {
-    keyVaultname: keyVault.outputs.name
-    principalIds: [
-    ]
-  }
-}
-
 // module cosmosDb 'modules/storage/cosmosdb.bicep' = {
 //   name: 'cosmosDbDeployment'
 //   params: {
