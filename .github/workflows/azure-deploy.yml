@@ -33,6 +33,7 @@ jobs:
           parameters: >
             environment=dev
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
+            deploymentPrincipalId=${{ secrets.AZURE_SP_OBJECT_ID }}
 
   deploy-stg:
     runs-on: ubuntu-latest
@@ -60,6 +61,7 @@ jobs:
           parameters: >
             environment=stg
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
+            deploymentPrincipalId=${{ secrets.AZURE_SP_OBJECT_ID }}
 
   deploy-prd:
     runs-on: ubuntu-latest
@@ -88,3 +90,4 @@ jobs:
           parameters: >
             environment=prd
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
+            deploymentPrincipalId=${{ secrets.AZURE_SP_OBJECT_ID }}

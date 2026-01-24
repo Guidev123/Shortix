@@ -3,6 +3,7 @@ param environment string
 param uniqueSuffix string = uniqueString(resourceGroup().id)
 @secure()
 param pgSqlPassword string
+param deploymentPrincipalId string
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
@@ -12,6 +13,39 @@ module keyVault 'modules/secrets/keyvault.bicep' = {
   }
 }
 
+module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
+  name: 'keyVaultRoleAssignmentDeployment'
+  params: {
+    keyVaultname: keyVault.outputs.name
+    principalIds: [deploymentPrincipalId]
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '00482a5a-887f-4fb3-b363-3b7fe8e74483'
+  }
+}
+
+module postgresDb 'modules/storage/postgresql.bicep' = {
+  name: 'postgresDeployment'
+  params: {
+    name: 'postgres-db-${uniqueSuffix}-${environment}'
+    location: location
+    administratorLogin: 'adminuser'
+    administratorLoginPassword: pgSqlPassword
+  }
+}
+
+module postgresSecret 'modules/secrets/postgres-secrets.bicep' = {
+  name: 'postgresSecretDeployment'
+  dependsOn: [
+    keyVaultRoleAssignment
+  ]
+  params: {
+    keyVaultName: keyVault.outputs.name
+    serverName: postgresDb.outputs.serverName
+    databaseName: postgresDb.outputs.databaseName
+    administratorLogin: 'adminuser'
+    administratorLoginPassword: pgSqlPassword
+  }
+}
 // module urlShortenerApiService 'modules/compute/appservice.bicep' = {
 //   name: 'urlShortenerApiDeployment'
 //   dependsOn: [
@@ -34,27 +68,6 @@ module keyVault 'modules/secrets/keyvault.bicep' = {
 //     ]
 //   }
 // }
-
-module postgresDb 'modules/storage/postgresql.bicep' = {
-  name: 'postgresDeployment'
-  params: {
-    name: 'postgres-db-${uniqueSuffix}-${environment}'
-    location: location
-    administratorLogin: 'adminuser'
-    administratorLoginPassword: pgSqlPassword
-  }
-}
-
-module postgresSecret 'modules/secrets/postgres-secrets.bicep' = {
-  name: 'postgresSecretDeployment'
-  params: {
-    keyVaultName: keyVault.outputs.name
-    serverName: postgresDb.outputs.serverName
-    databaseName: postgresDb.outputs.databaseName
-    administratorLogin: 'adminuser'
-    administratorLoginPassword: pgSqlPassword
-  }
-}
 
 // module cosmosDb 'modules/storage/cosmosdb.bicep' = {
 //   name: 'cosmosDbDeployment'
