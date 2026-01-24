@@ -1,7 +1,7 @@
 param location string = resourceGroup().location
 param vaultName string
 
-resource keyvault 'Microsoft.KeyVault/vaults@2025-05-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: vaultName
   location: location
   properties: {
@@ -14,5 +14,5 @@ resource keyvault 'Microsoft.KeyVault/vaults@2025-05-01' = {
   }
 }
 
-output id string = keyvault.id
-output name string = keyvault.name
+output id string = keyVault.id
+output name string = keyVault.name

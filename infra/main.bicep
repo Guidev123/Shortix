@@ -1,106 +1,77 @@
-param location string = resourceGroup().location
 param environment string
-param uniqueSuffix string = uniqueString(resourceGroup().id)
+param location string = resourceGroup().location
+var uniqueId = uniqueString(resourceGroup().id)
 @secure()
 param pgSqlPassword string
-param deploymentPrincipalId string
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
   params: {
-    vaultName: 'kv-${uniqueSuffix}-${environment}'
+    vaultName: 'kv-${uniqueId}-${environment}'
     location: location
+  }
+}
+
+module urlShortenerApi 'modules/compute/appservice.bicep' = {
+  name: 'urlShortenerApiDeployment'
+  params: {
+    appName: 'urlShortenerApi-${environment}'
+    appServicePlanName: 'plan-urlShortenerApi-${environment}'
+    location: location
+    keyVaultName: keyVault.outputs.name
+    appSettings: [
+      {
+        name: 'DatabaseName'
+        value: 'urls'
+      }
+      {
+        name: 'ContainerName'
+        value: 'items'
+      }
+    ]
+  }
+}
+
+module tokenRangeApi 'modules/compute/appservice.bicep' = {
+  name: 'tokenRangeApiDeployment'
+  params: {
+    appName: 'tokenRangeApi-${environment}'
+    appServicePlanName: 'plan-tokenRangeApi-${environment}'
+    location: location
+    keyVaultName: keyVault.outputs.name
+  }
+}
+
+module postgres 'modules/storage/postgresql.bicep' = {
+  name: 'postgresDeployment'
+  params: {
+    name: 'postgresql-${uniqueString(resourceGroup().id)}'
+    location: location
+    administratorLogin: 'adminuser'
+    administratorLoginPassword: pgSqlPassword
+    keyVaultName: keyVault.outputs.name
+  }
+}
+
+module cosmosDb 'modules/storage/cosmosdb.bicep' = {
+  name: 'cosmosDbDeployment'
+  params: {
+    name: 'cosmos-db-${uniqueId}'
+    location: location
+    kind: 'GlobalDocumentDB'
+    databaseName: 'urls'
+    locationName: 'BrazilSouth'
+    keyVaultName: keyVault.outputs.name
   }
 }
 
 module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
   name: 'keyVaultRoleAssignmentDeployment'
   params: {
-    keyVaultname: keyVault.outputs.name
-    principalIds: [deploymentPrincipalId]
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: '00482a5a-887f-4fb3-b363-3b7fe8e74483'
-  }
-}
-
-module postgresDb 'modules/storage/postgresql.bicep' = {
-  name: 'postgresDeployment'
-  params: {
-    name: 'postgres-db-${uniqueSuffix}-${environment}'
-    location: location
-    administratorLogin: 'adminuser'
-    administratorLoginPassword: pgSqlPassword
-  }
-}
-
-module postgresSecret 'modules/secrets/postgres-secrets.bicep' = {
-  name: 'postgresSecretDeployment'
-  dependsOn: [
-    keyVaultRoleAssignment
-  ]
-  params: {
     keyVaultName: keyVault.outputs.name
-    serverName: postgresDb.outputs.serverName
-    databaseName: postgresDb.outputs.databaseName
-    administratorLogin: 'adminuser'
-    administratorLoginPassword: pgSqlPassword
+    principalIds: [
+      urlShortenerApi.outputs.principalId
+      tokenRangeApi.outputs.principalId
+    ]
   }
 }
-// module urlShortenerApiService 'modules/compute/appservice.bicep' = {
-//   name: 'urlShortenerApiDeployment'
-//   dependsOn: [
-//     cosmosDb
-//   ]
-//   params: {
-//     appName: 'urlShortenerApi-${environment}'
-//     appServicePlanName: 'plan-urlShortenerApi-${environment}'
-//     location: location
-//     keyVaultName: keyVault.outputs.name
-//     appSettings: [
-//       {
-//         name: 'CosmosDb__DatabaseName'
-//         value: 'cosmos-db-${environment}'
-//       }
-//       {
-//         name: 'CosmosDb__ContainerName'
-//         value: 'items'
-//       }
-//     ]
-//   }
-// }
-
-// module cosmosDb 'modules/storage/cosmosdb.bicep' = {
-//   name: 'cosmosDbDeployment'
-//   params: {
-//     name: 'cosmos-db-${uniqueSuffix}-${environment}'
-//     location: location
-//     kind: 'GlobalDocumentDB'
-//     databaseName: 'UrlShortenerDb'
-//     locationName: 'BrazilSouth'
-//     keyVaultName: keyVault.outputs.name
-//   }
-// }
-
-// module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
-//   name: 'keyVaultRoleAssignmentDeployment'
-//   params: {
-//     keyVaultname: keyVault.outputs.name
-//     principalIds: [
-//       urlShortenerApiService.outputs.principalId
-//       tokenRangeApiService.outputs.principalId
-//     ]
-//   }
-// }
-
-// module tokenRangeApiService 'modules/compute/appservice.bicep' = {
-//   name: 'tokenRangeApiDeployment'
-//   dependsOn: [
-//     postgresDb
-//   ]
-//   params: {
-//     appName: 'tokenRangeApi-${environment}'
-//     appServicePlanName: 'plan-tokenRangeApi-${environment}'
-//     location: location
-//     keyVaultName: keyVault.outputs.name
-//   }
-// }
