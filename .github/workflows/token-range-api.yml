@@ -32,6 +32,11 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+      - name: Upload Sql artifact for database deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: pg-script
+          path: sql/TokenRanges/TokenRangesTable.sql
 
   deploy-dev:
     runs-on: ubuntu-latest
@@ -42,6 +47,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+      - name: Download database artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: pg-script
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -75,6 +84,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+      - name: Download database artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: pg-script
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -109,6 +122,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+      - name: Download database artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: pg-script
       - name: Login to Azure
         uses: azure/login@v2
         with:
