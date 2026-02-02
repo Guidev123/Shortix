@@ -8,6 +8,7 @@ using MidR.DependencyInjection;
 using Shortix.Commons.Core.Behaviors;
 using Shortix.UrlShortener.Core;
 using Shortix.UrlShortener.Core.Interfaces;
+using Shortix.UrlShortener.Infrastructure.BackgroundServices;
 using Shortix.UrlShortener.Infrastructure.Data.Repositories;
 using Shortix.UrlShortener.Infrastructure.Services;
 
@@ -15,6 +16,8 @@ namespace Shortix.UrlShortener.Infrastructure
 {
     public static class InfrastructureModule
     {
+        public const string TokenRangesHttpClientName = "TokenRanges";
+
         public static IServiceCollection AddInfrastructureModule(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
         {
             services.AddCosmosDb(configuration, environment);
@@ -29,6 +32,15 @@ namespace Shortix.UrlShortener.Infrastructure
 
             services.AddSingleton<ITokenService, TokenService>();
             services.AddTransient<IUrlRepository, UrlRepository>();
+
+            services.AddHostedService<TokenRangeManager>();
+
+            services.AddHttpClient(TokenRangesHttpClientName, client =>
+            {
+                client.BaseAddress = new Uri(configuration["TokenRangeService:BaseUrl"]!);
+            });
+
+            services.AddSingleton<ITokenRangeApiService, TokenRangeApiService>();
 
             return services;
         }

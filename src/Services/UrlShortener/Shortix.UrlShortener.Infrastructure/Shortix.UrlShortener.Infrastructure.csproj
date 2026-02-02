@@ -12,13 +12,14 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<InternalsVisibleTo Include="Shortix.UrlShortener.Core.Tests" />
+		<InternalsVisibleTo Include="UrlShortener.Tests" />
 	</ItemGroup>
 	
 	<ItemGroup>
 	  <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
 	  <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.56.0" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.1" />
+	  <PackageReference Include="Polly" Version="8.6.5" />
 	</ItemGroup>
 	
 </Project>

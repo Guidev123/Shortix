@@ -5,10 +5,9 @@ namespace Shortix.TokenRange.WebApi.Features.AssignTokenRange
 {
     internal sealed class AssignTokenRangeCommandHandler(AssignTokenRangeService assignTokenRangeService) : ICommandHandler<AssignTokenRangeCommand, AssignTokenRangeResponse>
     {
-        public async Task<Result<AssignTokenRangeResponse>> ExecuteAsync(AssignTokenRangeCommand request, CancellationToken cancellationToken = default)
+        public Task<Result<AssignTokenRangeResponse>> ExecuteAsync(AssignTokenRangeCommand request, CancellationToken cancellationToken = default)
         {
-            return await assignTokenRangeService.AssignRangeAsync(request.Key, cancellationToken);
-
+            return assignTokenRangeService.AssignRangeAsync(request.Key, cancellationToken);
         }
     }
 }
