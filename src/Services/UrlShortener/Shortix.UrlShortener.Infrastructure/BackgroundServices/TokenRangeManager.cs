@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shortix.UrlShortener.Core.DTOs;
-using Shortix.UrlShortener.Core.Errors;
 using Shortix.UrlShortener.Core.Exceptions;
 using Shortix.UrlShortener.Core.Interfaces;
-using System.Net.Http.Json;
 
 namespace Shortix.UrlShortener.Infrastructure.BackgroundServices
 {
@@ -15,21 +13,29 @@ namespace Shortix.UrlShortener.Infrastructure.BackgroundServices
         ) : IHostedService
     {
         private readonly string _machineIdentifier = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")
-                                                  ?? Guid.NewGuid().ToString("O");
+                                                  ?? Guid.NewGuid().ToString("N");
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (logger.IsEnabled(LogLevel.Information))
+            try
             {
-                logger.LogInformation("TokenRangeManager started.");
-            }
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("TokenRangeManager started.");
+                }
 
-            tokenService.ReachingRangeLimit += async (sender, args) =>
-            {
+                tokenService.ReachingRangeLimit += async (sender, args) =>
+                {
+                    await AssignNewRangeAsync(cancellationToken);
+                };
+
                 await AssignNewRangeAsync(cancellationToken);
-            };
-
-            await AssignNewRangeAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogCritical(ex, "An error occurred while starting TokenRangeManager.");
+                Environment.Exit(-1);
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

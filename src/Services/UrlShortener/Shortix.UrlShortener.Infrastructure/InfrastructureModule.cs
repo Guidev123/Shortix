@@ -10,6 +10,7 @@ using Shortix.UrlShortener.Core;
 using Shortix.UrlShortener.Core.Interfaces;
 using Shortix.UrlShortener.Infrastructure.BackgroundServices;
 using Shortix.UrlShortener.Infrastructure.Data.Repositories;
+using Shortix.UrlShortener.Infrastructure.ExternalServices;
 using Shortix.UrlShortener.Infrastructure.Services;
 
 namespace Shortix.UrlShortener.Infrastructure
@@ -32,6 +33,7 @@ namespace Shortix.UrlShortener.Infrastructure
 
             services.AddSingleton<ITokenService, TokenService>();
             services.AddTransient<IUrlRepository, UrlRepository>();
+            services.AddSingleton<IEnvironmentManager, EnvironmentManager>();
 
             services.AddHostedService<TokenRangeManager>();
 

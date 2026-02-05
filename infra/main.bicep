@@ -50,6 +50,10 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
         name: 'ContainerName'
         value: 'items'
       }
+      {
+        name: 'TokenRangeService__BaseUrl'
+        value: tokenRangeApi.outputs.url
+      }
     ]
   }
 }

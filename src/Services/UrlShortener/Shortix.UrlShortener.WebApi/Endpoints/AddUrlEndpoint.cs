@@ -14,7 +14,7 @@ namespace Shortix.UrlShortener.WebApi.Endpoints
             {
                 var result = await sender.SendAsync(command.SetCreatedBy("guirafaelrn@gmail.com"), cancellationToken);
 
-                return result.Match(apiResult => Results.Created($"/api/v1/urls/{apiResult.ShortenedUrl}", apiResult.ShortenedUrl), ApiResults.Problem);
+                return result.Match(apiResult => Results.Created($"/api/v1/urls/{apiResult.ShortenedUrl}", apiResult), ApiResults.Problem);
             });
         }
     }

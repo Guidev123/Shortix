@@ -12,6 +12,6 @@ namespace Shortix.UrlShortener.Core.Interfaces
 
         void AssignRange(int start, int end);
 
-        event EventHandler<ReachingRangeLimitEventArgs>? ReachingRangeLimit;
+        event EventHandler ReachingRangeLimit;
     }
 }
