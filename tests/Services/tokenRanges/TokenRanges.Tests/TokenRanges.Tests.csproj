@@ -18,8 +18,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\src\Services\TokenRanges\Shortix.TokenRange.WebApi\Shortix.TokenRange.WebApi.csproj" />
+	  <ProjectReference Include="..\..\..\..\src\Services\TokenRanges\Shortix.TokenRanges.WebApi\Shortix.TokenRanges.WebApi.csproj" />
 	</ItemGroup>
+
 
 	<ItemGroup>
 		<Using Include="Xunit" />
