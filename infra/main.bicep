@@ -71,7 +71,7 @@ module tokenRangeApi 'modules/compute/appservice.bicep' = {
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
   params: {
-    name: 'cosmos-db-${uniqueId}'
+    name: 'cosmos-db-${uniqueId}-${environment}'
     location: location
     kind: 'GlobalDocumentDB'
     databaseName: 'urls'
