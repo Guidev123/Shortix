@@ -1,8 +1,9 @@
+@secure()
+param pgSqlPassword string
 param environment string
 param location string = resourceGroup().location
 var uniqueId = uniqueString(subscription().subscriptionId, resourceGroup().name)
-@secure()
-param pgSqlPassword string
+var keyVaultName = 'kv-${uniqueId}-${environment}'
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
@@ -19,14 +20,14 @@ module postgres 'modules/storage/postgresql.bicep' = {
     location: location
     administratorLogin: 'adminuser'
     administratorLoginPassword: pgSqlPassword
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
   }
 }
 
 module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
   name: 'keyVaultRoleAssignmentDeployment'
   params: {
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
     principalIds: [
       urlShortenerApi.outputs.principalId
       tokenRangeApi.outputs.principalId
@@ -76,6 +77,13 @@ module cosmosDb 'modules/storage/cosmosdb.bicep' = {
     kind: 'GlobalDocumentDB'
     databaseName: 'urls'
     locationName: 'BrazilSouth'
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
+  }
+}
+
+module entraApp 'modules/identity/entra-app.bicep' = {
+  name: 'entraAppDeployment'
+  params: {
+    applicationName: 'web-${uniqueId}-${environment}'
   }
 }
