@@ -14,4 +14,27 @@ resource application 'Microsoft.Graph/applications@v1.0' = {
   signInAudience: signInAudience
 }
 
+resource updateApplicationWithSettings 'Microsoft.Graph/applications@v1.0' = {
+  displayName: applicationName
+  uniqueName: applicationName
+  signInAudience: signInAudience
+  api: {
+    oauth2PermissionScopes: [
+      {
+        id: '9d0c290c-3ddf-40b9-a153-59fbff143ac3'
+        isEnabled: true
+        value: 'Urls.Read'
+        type: 'User'
+        adminConsentDescription: 'URLs Read'
+        adminConsentDisplayName: 'URLs Read'
+        userConsentDescription: null
+        userConsentDisplayName: 'Read Access to Urls'
+      }
+    ]
+  }
+  identifierUris: [
+    'api://${application.appId}'
+  ]
+}
+
 output applicationId string = application.appId

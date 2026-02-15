@@ -30,6 +30,7 @@ jobs:
         with:
           resourceGroupName: ${{ vars.RESOURCE_GROUP_NAME }}
           template: ./infra/main.bicep
+          additionalArguments: "--only-show-errors"
           parameters: >
             environment=dev
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
@@ -57,6 +58,7 @@ jobs:
         with:
           resourceGroupName: ${{ vars.RESOURCE_GROUP_NAME }}
           template: ./infra/main.bicep
+          additionalArguments: "--only-show-errors"
           parameters: >
             environment=stg
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
@@ -84,6 +86,7 @@ jobs:
         with:
           resourceGroupName: ${{ vars.RESOURCE_GROUP_NAME }}
           template: ./infra/main.bicep
+          additionalArguments: "--only-show-errors"
           parameters: >
             environment=prd
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
