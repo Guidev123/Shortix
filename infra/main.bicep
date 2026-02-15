@@ -1,14 +1,14 @@
 @secure()
 param pgSqlPassword string
-param environment string
+param env string
 param location string = resourceGroup().location
 var uniqueId = uniqueString(subscription().subscriptionId, resourceGroup().name)
-var keyVaultName = 'kv-${uniqueId}-${environment}'
+var keyVaultName = 'kv-${uniqueId}-${env}'
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
   params: {
-    vaultName: 'kv-${uniqueId}-${environment}'
+    vaultName: 'kv-${uniqueId}-${env}'
     location: location
   }
 }
@@ -16,7 +16,7 @@ module keyVault 'modules/secrets/keyvault.bicep' = {
 module postgres 'modules/storage/postgresql.bicep' = {
   name: 'postgresDeployment'
   params: {
-    name: 'postgresql-${uniqueId}-${environment}'
+    name: 'postgresql-${uniqueId}-${env}'
     location: location
     administratorLogin: 'adminuser'
     administratorLoginPassword: pgSqlPassword
@@ -38,8 +38,8 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
 module urlShortenerApi 'modules/compute/appservice.bicep' = {
   name: 'urlShortenerApiDeployment'
   params: {
-    appName: 'urlShortenerApi-${environment}'
-    appServicePlanName: 'plan-urlShortenerApi-${environment}'
+    appName: 'urlShortenerApi-${env}'
+    appServicePlanName: 'plan-urlShortenerApi-${env}'
     location: location
     keyVaultName: keyVault.outputs.name
     appSettings: [
@@ -55,6 +55,22 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
         name: 'TokenRangeService__BaseUrl'
         value: tokenRangeApi.outputs.url
       }
+      {
+        name: 'AzureAd__Instance'
+        value: environment().authentication.loginEndpoint
+      }
+      {
+        name: 'AzureAd__TenantId'
+        value: tenant().tenantId
+      }
+      {
+        name: 'AzureAd__ClientId'
+        value: entraApp.outputs.applicationId
+      }
+      {
+        name: 'AzureAd__Scopes'
+        value: 'Urls.Read'
+      }
     ]
   }
 }
@@ -62,8 +78,8 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
 module tokenRangeApi 'modules/compute/appservice.bicep' = {
   name: 'tokenRangeApiDeployment'
   params: {
-    appName: 'tokenRangeApi-${environment}'
-    appServicePlanName: 'plan-tokenRangeApi-${environment}'
+    appName: 'tokenRangeApi-${env}'
+    appServicePlanName: 'plan-tokenRangeApi-${env}'
     location: location
     keyVaultName: keyVault.outputs.name
   }
@@ -72,7 +88,7 @@ module tokenRangeApi 'modules/compute/appservice.bicep' = {
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
   params: {
-    name: 'cosmos-db-${uniqueId}-${environment}'
+    name: 'cosmos-db-${uniqueId}-${env}'
     location: location
     kind: 'GlobalDocumentDB'
     databaseName: 'urls'
@@ -84,6 +100,6 @@ module cosmosDb 'modules/storage/cosmosdb.bicep' = {
 module entraApp 'modules/identity/entra-app.bicep' = {
   name: 'entraAppDeployment'
   params: {
-    applicationName: 'web-${uniqueId}-${environment}'
+    applicationName: 'web-${uniqueId}-${env}'
   }
 }

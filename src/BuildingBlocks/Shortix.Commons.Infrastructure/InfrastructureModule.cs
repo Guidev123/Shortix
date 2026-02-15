@@ -52,6 +52,9 @@ namespace Shortix.Commons.Infrastructure
 
         public static WebApplication UseCommonPipeline(this WebApplication app)
         {
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseExceptionHandler();
 
             app.MapEndpoints();
