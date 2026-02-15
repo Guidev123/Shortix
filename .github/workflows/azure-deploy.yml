@@ -32,7 +32,7 @@ jobs:
           template: ./infra/main.bicep
           additionalArguments: "--only-show-errors"
           parameters: >
-            environment=dev
+            env=dev
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
 
   deploy-stg:
@@ -60,7 +60,7 @@ jobs:
           template: ./infra/main.bicep
           additionalArguments: "--only-show-errors"
           parameters: >
-            environment=stg
+            env=stg
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
 
   deploy-prd:
@@ -88,5 +88,5 @@ jobs:
           template: ./infra/main.bicep
           additionalArguments: "--only-show-errors"
           parameters: >
-            environment=prd
+            env=prd
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
