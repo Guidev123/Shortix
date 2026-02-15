@@ -1,5 +1,5 @@
-// @secure()
-// param pgSqlPassword string
+@secure()
+param pgSqlPassword string
 param env string
 param location string = resourceGroup().location
 var uniqueId = uniqueString(subscription().subscriptionId, resourceGroup().name)
