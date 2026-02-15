@@ -13,16 +13,16 @@ module keyVault 'modules/secrets/keyvault.bicep' = {
   }
 }
 
-// module postgres 'modules/storage/postgresql.bicep' = {
-//   name: 'postgresDeployment'
-//   params: {
-//     name: 'postgresql-${uniqueId}-${env}'
-//     location: location
-//     administratorLogin: 'adminuser'
-//     administratorLoginPassword: pgSqlPassword
-//     keyVaultName: keyVaultName
-//   }
-// }
+module postgres 'modules/storage/postgresql.bicep' = {
+  name: 'postgresDeployment'
+  params: {
+    name: 'postgresql-${uniqueId}-${env}'
+    location: location
+    administratorLogin: 'adminuser'
+    administratorLoginPassword: pgSqlPassword
+    keyVaultName: keyVaultName
+  }
+}
 
 module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
   name: 'keyVaultRoleAssignmentDeployment'
@@ -30,7 +30,7 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
     keyVaultName: keyVaultName
     principalIds: [
       urlShortenerApi.outputs.principalId
-      // tokenRangeApi.outputs.principalId
+      tokenRangeApi.outputs.principalId
     ]
   }
 }
@@ -51,10 +51,10 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
         name: 'ContainerName'
         value: 'items'
       }
-      // {
-      //   name: 'TokenRangeService__BaseUrl'
-      //   value: tokenRangeApi.outputs.url
-      // }
+      {
+        name: 'TokenRangeService__BaseUrl'
+        value: tokenRangeApi.outputs.url
+      }
       {
         name: 'AzureAd__Instance'
         value: environment().authentication.loginEndpoint
@@ -75,27 +75,27 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
   }
 }
 
-// module tokenRangeApi 'modules/compute/appservice.bicep' = {
-//   name: 'tokenRangeApiDeployment'
-//   params: {
-//     appName: 'tokenRangeApi-${env}'
-//     appServicePlanName: 'plan-tokenRangeApi-${env}'
-//     location: location
-//     keyVaultName: keyVault.outputs.name
-//   }
-// }
+module tokenRangeApi 'modules/compute/appservice.bicep' = {
+  name: 'tokenRangeApiDeployment'
+  params: {
+    appName: 'tokenRangeApi-${env}'
+    appServicePlanName: 'plan-tokenRangeApi-${env}'
+    location: location
+    keyVaultName: keyVault.outputs.name
+  }
+}
 
-// module cosmosDb 'modules/storage/cosmosdb.bicep' = {
-//   name: 'cosmosDbDeployment'
-//   params: {
-//     name: 'cosmos-db-${uniqueId}-${env}'
-//     location: location
-//     kind: 'GlobalDocumentDB'
-//     databaseName: 'urls'
-//     locationName: 'BrazilSouth'
-//     keyVaultName: keyVaultName
-//   }
-// }
+module cosmosDb 'modules/storage/cosmosdb.bicep' = {
+  name: 'cosmosDbDeployment'
+  params: {
+    name: 'cosmos-db-${uniqueId}-${env}'
+    location: location
+    kind: 'GlobalDocumentDB'
+    databaseName: 'urls'
+    locationName: 'BrazilSouth'
+    keyVaultName: keyVaultName
+  }
+}
 
 module entraApp 'modules/identity/entra-app.bicep' = {
   name: 'entraAppDeployment'
