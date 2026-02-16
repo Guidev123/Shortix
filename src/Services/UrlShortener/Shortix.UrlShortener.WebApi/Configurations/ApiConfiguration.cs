@@ -13,12 +13,12 @@ namespace Shortix.UrlShortener.WebApi.Configurations
         {
             public WebApplicationBuilder AddApiConfiguration()
             {
+                builder.AddSwaggerConfig();
+
                 builder.AddCommonConfiguration();
 
                 builder.AddAuthenticationWithAzureEntraId();
                 builder.AddAuthorizationWithAzureEntraId();
-
-                builder.AddSwaggerConfig();
 
                 builder.Services.AddEndpoints(typeof(ApiConfiguration).Assembly);
 
@@ -67,7 +67,7 @@ namespace Shortix.UrlShortener.WebApi.Configurations
         {
             public WebApplication UseApiConfiguration()
             {
-                app.UseCommonPipeline().UseSwaggerConfig();
+                app.UseSwaggerConfig().UseCommonPipeline();
 
                 return app;
             }

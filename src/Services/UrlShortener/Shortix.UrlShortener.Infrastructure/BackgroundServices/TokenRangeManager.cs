@@ -26,10 +26,10 @@ namespace Shortix.UrlShortener.Infrastructure.BackgroundServices
 
                 tokenService.ReachingRangeLimit += async (sender, args) =>
                 {
-                    await AssignNewRangeAsync(cancellationToken);
+                    //await AssignNewRangeAsync(cancellationToken);
                 };
 
-                await AssignNewRangeAsync(cancellationToken);
+                //await AssignNewRangeAsync(cancellationToken);
             }
             catch (Exception ex)
             {
