@@ -5,22 +5,22 @@ param location string = resourceGroup().location
 var uniqueId = uniqueString(subscription().subscriptionId, resourceGroup().name)
 var keyVaultName = 'kv-${uniqueId}-${env}'
 
+// Identity resources
+
+module entraApp 'modules/identity/entra-app.bicep' = {
+  name: 'entraAppDeployment'
+  params: {
+    applicationName: 'web-${uniqueId}-${env}'
+  }
+}
+
+// Secrets resources
+
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
   params: {
     vaultName: 'kv-${uniqueId}-${env}'
     location: location
-  }
-}
-
-module postgres 'modules/storage/postgresql.bicep' = {
-  name: 'postgresDeployment'
-  params: {
-    name: 'postgresql-${uniqueId}-${env}'
-    location: location
-    administratorLogin: 'adminuser'
-    administratorLoginPassword: pgSqlPassword
-    keyVaultName: keyVaultName
   }
 }
 
@@ -31,9 +31,12 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
     principalIds: [
       urlShortenerApi.outputs.principalId
       tokenRangeApi.outputs.principalId
+      redirectApi.outputs.principalId
     ]
   }
 }
+
+// Compute resources
 
 module urlShortenerApi 'modules/compute/appservice.bicep' = {
   name: 'urlShortenerApiDeployment'
@@ -85,6 +88,28 @@ module tokenRangeApi 'modules/compute/appservice.bicep' = {
   }
 }
 
+module redirectApi 'modules/compute/appservice.bicep' = {
+  name: 'redirectApiDeployment'
+  params: {
+    appName: 'redirectApi-${env}'
+    appServicePlanName: 'plan-redirectApi-${env}'
+    location: location
+    keyVaultName: keyVault.outputs.name
+    appSettings: [
+      {
+        name: 'DatabaseName'
+        value: 'urls'
+      }
+      {
+        name: 'ContainerName'
+        value: 'items'
+      }
+    ]
+  }
+}
+
+// Storage resources
+
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
   params: {
@@ -97,9 +122,13 @@ module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   }
 }
 
-module entraApp 'modules/identity/entra-app.bicep' = {
-  name: 'entraAppDeployment'
+module postgres 'modules/storage/postgresql.bicep' = {
+  name: 'postgresDeployment'
   params: {
-    applicationName: 'web-${uniqueId}-${env}'
+    name: 'postgresql-${uniqueId}-${env}'
+    location: location
+    administratorLogin: 'adminuser'
+    administratorLoginPassword: pgSqlPassword
+    keyVaultName: keyVaultName
   }
 }
