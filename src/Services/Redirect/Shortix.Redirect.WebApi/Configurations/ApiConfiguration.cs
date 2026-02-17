@@ -32,7 +32,7 @@ namespace Shortix.Redirect.WebApi.Configurations
             public WebApplicationBuilder AddInfrastructure()
             {
                 builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
-                    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis:ConnectionString")!));
+                    ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"]!));
 
                 builder.Services.AddSingleton(_ =>
                 {
