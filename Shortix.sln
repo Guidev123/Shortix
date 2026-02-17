@@ -41,6 +41,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "redirect", "redirect", "{92
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shortix.Redirect.WebApi", "src\Services\Redirect\Shortix.Redirect.WebApi\Shortix.Redirect.WebApi.csproj", "{A5AA2ABA-3266-4D63-ABB2-3D5CDE5C9546}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "redirect", "redirect", "{F7BD5180-5704-4F50-B3FD-A8620A3D7227}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redirect.Tests", "tests\Services\redirect\Redirect.Tests\Redirect.Tests.csproj", "{65962D19-B1C0-418A-B22A-C9F501694D53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +87,10 @@ Global
 		{A5AA2ABA-3266-4D63-ABB2-3D5CDE5C9546}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5AA2ABA-3266-4D63-ABB2-3D5CDE5C9546}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5AA2ABA-3266-4D63-ABB2-3D5CDE5C9546}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65962D19-B1C0-418A-B22A-C9F501694D53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65962D19-B1C0-418A-B22A-C9F501694D53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65962D19-B1C0-418A-B22A-C9F501694D53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65962D19-B1C0-418A-B22A-C9F501694D53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -105,6 +113,8 @@ Global
 		{3A887180-B59A-BD45-B168-E47F57C78372} = {CBD3E674-4C35-4E0C-B859-1B5787F19559}
 		{925A568A-AB93-4BB7-9386-22159658D15C} = {C14A2975-BB15-413B-AEC8-FB154AF1CDDA}
 		{A5AA2ABA-3266-4D63-ABB2-3D5CDE5C9546} = {925A568A-AB93-4BB7-9386-22159658D15C}
+		{F7BD5180-5704-4F50-B3FD-A8620A3D7227} = {2CA438FC-BF13-44E8-8C41-EA4CF14BD6C8}
+		{65962D19-B1C0-418A-B22A-C9F501694D53} = {F7BD5180-5704-4F50-B3FD-A8620A3D7227}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0F69441-2102-45E5-9393-C4EB5678D0EE}
