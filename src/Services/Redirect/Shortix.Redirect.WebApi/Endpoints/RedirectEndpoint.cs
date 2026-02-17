@@ -9,7 +9,7 @@ namespace Shortix.Redirect.WebApi.Endpoints
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapGet("api/v1/redirect/{shortUrl}", async (string shortUrl,
+            app.MapGet("r/{shortUrl}", async (string shortUrl,
                                                                    IUrlShortenerService urlShortenerService,
                                                                    CancellationToken cancellationToken) =>
             {
