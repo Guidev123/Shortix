@@ -1,7 +1,7 @@
 ﻿using Npgsql;
 using Shortix.Commons.Core.Results;
 
-namespace Shortix.TokenRange.WebApi.Features.AssignTokenRange
+namespace Shortix.TokenRanges.WebApi.Features.AssignTokenRange
 {
     internal sealed class AssignTokenRangeService(string connectionString)
     {

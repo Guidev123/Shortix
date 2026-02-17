@@ -1,6 +1,7 @@
 ﻿using Microsoft.OpenApi;
+using Shortix.TokenRanges.WebApi.Configurations;
 
-namespace Shortix.TokenRange.WebApi.Configurations
+namespace Shortix.TokenRanges.WebApi.Configurations
 {
     public static class DocsConfiguration
     {

@@ -2,7 +2,6 @@
 using Shortix.Commons.Infrastructure;
 using Shortix.Commons.Infrastructure.Extensions;
 using Shortix.Redirect.WebApi.Configurations;
-using Shortix.TokenRange.WebApi.Configurations;
 using System.Reflection;
 
 namespace Shortix.Redirect.WebApi.Configurations

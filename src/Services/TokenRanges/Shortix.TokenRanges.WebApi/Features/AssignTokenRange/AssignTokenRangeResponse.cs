@@ -1,4 +1,4 @@
-﻿namespace Shortix.TokenRange.WebApi.Features.AssignTokenRange
+﻿namespace Shortix.TokenRanges.WebApi.Features.AssignTokenRange
 {
     internal sealed record AssignTokenRangeResponse(long Start, long End);
 }

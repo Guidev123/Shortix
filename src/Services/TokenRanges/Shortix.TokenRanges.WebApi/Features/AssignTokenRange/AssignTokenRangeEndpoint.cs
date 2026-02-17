@@ -4,7 +4,7 @@ using Shortix.Commons.Core.Results;
 using Shortix.Commons.Infrastructure.Endpoints;
 using Shortix.Commons.Infrastructure.Extensions;
 
-namespace Shortix.TokenRange.WebApi.Features.AssignTokenRange
+namespace Shortix.TokenRanges.WebApi.Features.AssignTokenRange
 {
     internal sealed class AssignTokenRangeEndpoint : IEndpoint
     {
