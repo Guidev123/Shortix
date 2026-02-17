@@ -34,6 +34,9 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
       redirectApi.outputs.principalId
     ]
   }
+  dependsOn: [
+    keyVault
+  ]
 }
 
 // Compute resources
@@ -44,7 +47,7 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
     appName: 'urlShortenerApi-${env}'
     appServicePlanName: 'plan-urlShortenerApi-${env}'
     location: location
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
     appSettings: [
       {
         name: 'DatabaseName'
@@ -76,6 +79,9 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
       }
     ]
   }
+  dependsOn: [
+    keyVault
+  ]
 }
 
 module tokenRangeApi 'modules/compute/appservice.bicep' = {
@@ -84,8 +90,11 @@ module tokenRangeApi 'modules/compute/appservice.bicep' = {
     appName: 'tokenRangeApi-${env}'
     appServicePlanName: 'plan-tokenRangeApi-${env}'
     location: location
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
   }
+  dependsOn: [
+    keyVault
+  ]
 }
 
 module redirectApi 'modules/compute/appservice.bicep' = {
@@ -94,7 +103,7 @@ module redirectApi 'modules/compute/appservice.bicep' = {
     appName: 'redirectApi-${env}'
     appServicePlanName: 'plan-redirectApi-${env}'
     location: location
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
     appSettings: [
       {
         name: 'DatabaseName'
@@ -106,6 +115,9 @@ module redirectApi 'modules/compute/appservice.bicep' = {
       }
     ]
   }
+  dependsOn: [
+    keyVault
+  ]
 }
 
 // Storage resources
@@ -120,6 +132,9 @@ module cosmosDb 'modules/storage/cosmosdb.bicep' = {
     locationName: 'BrazilSouth'
     keyVaultName: keyVaultName
   }
+  dependsOn: [
+    keyVault
+  ]
 }
 
 module postgres 'modules/storage/postgresql.bicep' = {
@@ -131,4 +146,19 @@ module postgres 'modules/storage/postgresql.bicep' = {
     administratorLoginPassword: pgSqlPassword
     keyVaultName: keyVaultName
   }
+  dependsOn: [
+    keyVault
+  ]
+}
+
+module redisCache 'modules/storage/redis-cache.bicep' = {
+  name: 'redisCacheDeployment'
+  params: {
+    name: 'redis-cache-${uniqueId}-${env}'
+    location: location
+    keyVaultName: keyVaultName
+  }
+  dependsOn: [
+    keyVault
+  ]
 }
