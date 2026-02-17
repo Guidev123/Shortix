@@ -5,6 +5,7 @@ using Shortix.Commons.Infrastructure.Extensions;
 using Shortix.Redirect.WebApi.Configurations;
 using Shortix.Redirect.WebApi.Interfaces;
 using Shortix.Redirect.WebApi.Services;
+using StackExchange.Redis;
 using System.Reflection;
 
 namespace Shortix.Redirect.WebApi.Configurations
@@ -30,6 +31,9 @@ namespace Shortix.Redirect.WebApi.Configurations
 
             public WebApplicationBuilder AddInfrastructure()
             {
+                builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+                    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis:ConnectionString")!));
+
                 builder.Services.AddSingleton(_ =>
                 {
                     if (builder.Environment.IsDevelopment())
@@ -55,16 +59,20 @@ namespace Shortix.Redirect.WebApi.Configurations
                     return new CosmosClient(builder.Configuration["CosmosDb:ConnectionString"]!);
                 });
 
-                builder.Services.AddSingleton(c =>
+                builder.Services.AddSingleton<IUrlShortenerService>(c =>
                 {
                     var client = c.GetRequiredService<CosmosClient>();
 
-                    return client.GetContainer(
+                    var container = client.GetContainer(
                         builder.Configuration["CosmosDb:DatabaseName"]!,
                         builder.Configuration["CosmosDb:ContainerName"]!);
-                });
 
-                builder.Services.AddSingleton<IUrlShortenerService, UrlShortenerService>();
+                    return new RedisUrlShortenerService(
+                        c.GetRequiredService<ILogger<RedisUrlShortenerService>>(),
+                        new UrlShortenerService(container),
+                        c.GetRequiredService<IConnectionMultiplexer>()
+                    );
+                });
 
                 return builder;
             }
