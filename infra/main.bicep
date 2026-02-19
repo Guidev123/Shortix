@@ -5,7 +5,7 @@ param location string = resourceGroup().location
 var uniqueId = uniqueString(subscription().subscriptionId, resourceGroup().name)
 var keyVaultName = 'kv-${uniqueId}-${env}'
 
-// Identity resources
+// ================== Identity resources ==================
 
 module entraApp 'modules/identity/entra-app.bicep' = {
   name: 'entraAppDeployment'
@@ -14,7 +14,7 @@ module entraApp 'modules/identity/entra-app.bicep' = {
   }
 }
 
-// Secrets resources
+// ================== Secrets resources ==================
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
@@ -32,6 +32,7 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
       urlShortenerApi.outputs.principalId
       tokenRangeApi.outputs.principalId
       redirectApi.outputs.principalId
+      cosmosTriggerFunction.outputs.principalId
     ]
   }
   dependsOn: [
@@ -39,7 +40,7 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
   ]
 }
 
-// Compute resources
+// ================== Compute resources ==================
 
 module urlShortenerApi 'modules/compute/appservice.bicep' = {
   name: 'urlShortenerApiDeployment'
@@ -120,7 +121,47 @@ module redirectApi 'modules/compute/appservice.bicep' = {
   ]
 }
 
-// Storage resources
+module cosmosTriggerFunction 'modules/compute/function.bicep' = {
+  name: 'cosmosTriggerFunctionDeployment'
+  params: {
+    name: 'func-cosmosTriggerPropagation-${env}'
+    appServicePlanName: 'plan-cosmosTriggerFunction-${env}'
+    location: location
+    keyVaultName: keyVaultName
+    storageAccountConnectionString: storageAccount.outputs.storageConnectionString
+    appSettings: [
+      {
+        name: 'CosmosDbConnection'
+        value: '@Microsoft.KeyVault(SecretUri=https://${keyVaultName}.vault.azure.net/secrets/CosmosDb--ConnectionString/)'
+      }
+      {
+        name: 'TargetDatabaseName'
+        value: 'urls'
+      }
+      {
+        name: 'TargetContainerName'
+        value: 'byUser'
+      }
+    ]
+  }
+  dependsOn: [
+    keyVault
+    cosmosDb
+  ]
+}
+
+// ================== Storage resources ==================
+
+module storageAccount 'modules/storage/storage-account.bicep' = {
+  name: 'storageAccountDeployment'
+  params: {
+    name: 'storage${uniqueId}${env}'
+    location: location
+  }
+  dependsOn: [
+    keyVault
+  ]
+}
 
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
