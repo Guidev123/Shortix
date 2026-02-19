@@ -5,22 +5,22 @@ param location string = resourceGroup().location
 var uniqueId = uniqueString(subscription().subscriptionId, resourceGroup().name)
 var keyVaultName = 'kv-${uniqueId}-${env}'
 
+// Identity resources
+
+module entraApp 'modules/identity/entra-app.bicep' = {
+  name: 'entraAppDeployment'
+  params: {
+    applicationName: 'web-${uniqueId}-${env}'
+  }
+}
+
+// Secrets resources
+
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
   params: {
     vaultName: 'kv-${uniqueId}-${env}'
     location: location
-  }
-}
-
-module postgres 'modules/storage/postgresql.bicep' = {
-  name: 'postgresDeployment'
-  params: {
-    name: 'postgresql-${uniqueId}-${env}'
-    location: location
-    administratorLogin: 'adminuser'
-    administratorLoginPassword: pgSqlPassword
-    keyVaultName: keyVaultName
   }
 }
 
@@ -31,9 +31,15 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
     principalIds: [
       urlShortenerApi.outputs.principalId
       tokenRangeApi.outputs.principalId
+      redirectApi.outputs.principalId
     ]
   }
+  dependsOn: [
+    keyVault
+  ]
 }
+
+// Compute resources
 
 module urlShortenerApi 'modules/compute/appservice.bicep' = {
   name: 'urlShortenerApiDeployment'
@@ -41,7 +47,7 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
     appName: 'urlShortenerApi-${env}'
     appServicePlanName: 'plan-urlShortenerApi-${env}'
     location: location
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
     appSettings: [
       {
         name: 'DatabaseName'
@@ -73,6 +79,9 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
       }
     ]
   }
+  dependsOn: [
+    keyVault
+  ]
 }
 
 module tokenRangeApi 'modules/compute/appservice.bicep' = {
@@ -81,9 +90,37 @@ module tokenRangeApi 'modules/compute/appservice.bicep' = {
     appName: 'tokenRangeApi-${env}'
     appServicePlanName: 'plan-tokenRangeApi-${env}'
     location: location
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
   }
+  dependsOn: [
+    keyVault
+  ]
 }
+
+module redirectApi 'modules/compute/appservice.bicep' = {
+  name: 'redirectApiDeployment'
+  params: {
+    appName: 'redirectApi-${env}'
+    appServicePlanName: 'plan-redirectApi-${env}'
+    location: location
+    keyVaultName: keyVaultName
+    appSettings: [
+      {
+        name: 'DatabaseName'
+        value: 'urls'
+      }
+      {
+        name: 'ContainerName'
+        value: 'items'
+      }
+    ]
+  }
+  dependsOn: [
+    keyVault
+  ]
+}
+
+// Storage resources
 
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
@@ -95,11 +132,33 @@ module cosmosDb 'modules/storage/cosmosdb.bicep' = {
     locationName: 'BrazilSouth'
     keyVaultName: keyVaultName
   }
+  dependsOn: [
+    keyVault
+  ]
 }
 
-module entraApp 'modules/identity/entra-app.bicep' = {
-  name: 'entraAppDeployment'
+module postgres 'modules/storage/postgresql.bicep' = {
+  name: 'postgresDeployment'
   params: {
-    applicationName: 'web-${uniqueId}-${env}'
+    name: 'postgresql-${uniqueId}-${env}'
+    location: location
+    administratorLogin: 'adminuser'
+    administratorLoginPassword: pgSqlPassword
+    keyVaultName: keyVaultName
   }
+  dependsOn: [
+    keyVault
+  ]
+}
+
+module redisCache 'modules/storage/redis-cache.bicep' = {
+  name: 'redisCacheDeployment'
+  params: {
+    name: 'redis-cache-${uniqueId}-${env}'
+    location: location
+    keyVaultName: keyVaultName
+  }
+  dependsOn: [
+    keyVault
+  ]
 }

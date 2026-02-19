@@ -1,14 +1,14 @@
-name: TokenRangeApi
+name: RedirectApi
 
 on:
   push:
     branches: ["main"]
     paths:
-      - src/Services/TokenRanges/**
+      - src/Services/Redirect/**
   pull_request:
     branches: ["main"]
     paths:
-      - src/Services/TokenRanges/**
+      - src/Services/Redirect/**
 
 jobs:
   build:
@@ -26,17 +26,12 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal
       - name: dotnet publish
-        run: dotnet publish src/Services/TokenRanges/Shortix.TokenRanges.WebApi -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish src/Services/Redirect/Shortix.Redirect.WebApi -c Release -o ${{env.DOTNET_ROOT}}/myapp
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
-      - name: Upload Sql artifact for database deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: pg-script
-          path: sql/TokenRanges/TokenRangesTable.sql
 
   deploy-dev:
     runs-on: ubuntu-latest
@@ -47,29 +42,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      - name: Download database artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: pg-script
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Install PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-      - name: Deploy Database Schema
-        env:
-          PGHOST: ${{ secrets.PGSQL_HOST }}
-          PGUSER: ${{ secrets.PGSQL_USER }}
-          PGPASSWORD: ${{ secrets.PGSQL_PASSWORD }}
-          PGDATABASE: ${{ secrets.PGSQL_NAME }}
-        run: psql -f sql/TokenRanges/TokenRangesTable.sql
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ vars.TOKEN_RANGE_API_RESOURCE_NAME }}
+          app-name: ${{ vars.REDIRECT_API_RESOURCE_NAME }}
           package: .
       - name: Logout from Azure
         run: az logout
@@ -84,29 +64,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      - name: Download database artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: pg-script
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Install PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-      - name: Deploy Database Schema
-        env:
-          PGHOST: ${{ secrets.PGSQL_HOST }}
-          PGUSER: ${{ secrets.PGSQL_USER }}
-          PGPASSWORD: ${{ secrets.PGSQL_PASSWORD }}
-          PGDATABASE: ${{ secrets.PGSQL_NAME }}
-        run: psql -f sql/TokenRanges/TokenRangesTable.sql
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ vars.TOKEN_RANGE_API_RESOURCE_NAME }}
+          app-name: ${{ vars.REDIRECT_API_RESOURCE_NAME }}
           package: .
       - name: Logout from Azure
         run: az logout
@@ -122,29 +87,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      - name: Download database artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: pg-script
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Install PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-      - name: Deploy Database Schema
-        env:
-          PGHOST: ${{ secrets.PGSQL_HOST }}
-          PGUSER: ${{ secrets.PGSQL_USER }}
-          PGPASSWORD: ${{ secrets.PGSQL_PASSWORD }}
-          PGDATABASE: ${{ secrets.PGSQL_NAME }}
-        run: psql -f sql/TokenRanges/TokenRangesTable.sql
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ vars.TOKEN_RANGE_API_RESOURCE_NAME }}
+          app-name: ${{ vars.REDIRECT_API_RESOURCE_NAME }}
           package: .
       - name: Logout from Azure
         run: az logout

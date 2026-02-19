@@ -1,4 +1,4 @@
-using Shortix.TokenRanges.WebApi.Configurations;
+using Shortix.Redirect.WebApi.Configurations;
 
 var builder = WebApplication
     .CreateBuilder(args)

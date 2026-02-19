@@ -1,7 +1,7 @@
 ﻿using Microsoft.OpenApi;
-using Shortix.TokenRanges.WebApi.Configurations;
+using Shortix.Redirect.WebApi.Configurations;
 
-namespace Shortix.TokenRanges.WebApi.Configurations
+namespace Shortix.Redirect.WebApi.Configurations
 {
     public static class DocsConfiguration
     {
@@ -13,7 +13,7 @@ namespace Shortix.TokenRanges.WebApi.Configurations
                 {
                     c.SwaggerDoc("v1", new OpenApiInfo()
                     {
-                        Title = "Token Range",
+                        Title = "Redirect",
                         Contact = new OpenApiContact() { Name = "Guilherme Nascimento", Email = "guirafaelrn@gmail.com" },
                         License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://opensource.org/license/MIT") }
                     });

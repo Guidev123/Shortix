@@ -67,7 +67,12 @@ namespace Shortix.UrlShortener.WebApi.Configurations
         {
             public WebApplication UseApiConfiguration()
             {
-                app.UseSwaggerConfig().UseCommonPipeline();
+                app.UseSwaggerConfig();
+
+                app.UseAuthentication();
+                app.UseAuthorization();
+
+                app.UseCommonPipeline();
 
                 return app;
             }

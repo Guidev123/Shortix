@@ -1,6 +1,6 @@
 ﻿using Shortix.Commons.Core.Results;
 
-namespace Shortix.TokenRange.WebApi.Features.AssignTokenRange
+namespace Shortix.TokenRanges.WebApi.Features.AssignTokenRange
 {
     public static class AssignTokenRangeErrors
     {

@@ -1,10 +1,11 @@
 ﻿using MidR.DependencyInjection;
 using Shortix.Commons.Infrastructure;
 using Shortix.Commons.Infrastructure.Extensions;
-using Shortix.TokenRange.WebApi.Features.AssignTokenRange;
+using Shortix.TokenRanges.WebApi.Configurations;
+using Shortix.TokenRanges.WebApi.Features.AssignTokenRange;
 using System.Reflection;
 
-namespace Shortix.TokenRange.WebApi.Configurations
+namespace Shortix.TokenRanges.WebApi.Configurations
 {
     public static class ApiConfiguration
     {
