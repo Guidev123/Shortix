@@ -2,7 +2,7 @@
 
 namespace Shortix.UrlShortener.Core.Interfaces
 {
-    public interface IUrlRepository
+    public interface IShortUrlRepository
     {
         Task AddAsync(ShortenedUrl shortenedUrl, CancellationToken cancellationToken = default);
     }

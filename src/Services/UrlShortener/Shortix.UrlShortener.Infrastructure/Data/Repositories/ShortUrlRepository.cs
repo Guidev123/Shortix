@@ -5,7 +5,7 @@ using Shortix.UrlShortener.Core.Models;
 
 namespace Shortix.UrlShortener.Infrastructure.Data.Repositories
 {
-    internal sealed class UrlRepository(Container container) : IUrlRepository
+    internal sealed class ShortUrlRepository(Container container) : IShortUrlRepository
     {
         public async Task AddAsync(ShortenedUrl shortenedUrl, CancellationToken cancellationToken = default)
         {
