@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /src/Services/UrlShortener/Shortix.UrlShortener.WebApi/appsettings.Development.json
 /src/Services/TokenRanges/Shortix.TokenRange.WebApi/appsettings.Development.json
 /src/Services/Redirect/Shortix.Redirect.WebApi/appsettings.Development.json
+/src/Services/TokenRanges/Shortix.TokenRanges.WebApi/appsettings.Development.json
