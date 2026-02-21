@@ -1,41 +1,43 @@
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Shortix.CosmosDbTriggerFunction.Models;
 
 namespace Shortix.CosmosDbTriggerFunction
 {
-    public class ShortUrlPropagation
+    public class ShortUrlPropagation(ILoggerFactory loggerFactory, Container container)
     {
-        private readonly ILogger _logger;
-
-        public ShortUrlPropagation(ILoggerFactory loggerFactory)
-        {
-            _logger = loggerFactory.CreateLogger<ShortUrlPropagation>();
-        }
+        private readonly ILogger _logger = loggerFactory.CreateLogger<ShortUrlPropagation>();
 
         [Function("ShortUrlPropagation")]
-        public void Run([CosmosDBTrigger(
+        public async Task Run([CosmosDBTrigger(
                 databaseName: "urls",
                 containerName: "items",
                 Connection = "CosmosDbConnection",
                 LeaseContainerName = "leases",
-                CreateLeaseContainerIfNotExists = true)] IReadOnlyList<MyDocument> input)
+                CreateLeaseContainerIfNotExists = true)] IReadOnlyList<UrlDocument> urlDocuments)
         {
-            if (input != null && input.Count > 0)
+            if (urlDocuments is null || urlDocuments.Count <= 0) return;
+
+            foreach (var url in urlDocuments)
             {
-                _logger.LogInformation("Documents modified: " + input.Count);
-                _logger.LogInformation("First document Id: " + input[0].Id);
+                try
+                {
+                    var cosmosDbDocument = new ShortenedUrl(
+                        url.LongUrl,
+                        url.Id,
+                        url.CreatedOn,
+                        url.CreatedBy
+                    );
+
+                    await container.UpsertItemAsync(cosmosDbDocument, new PartitionKey(cosmosDbDocument.CreatedBy));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error upserting document with Short Url Identifier: {ShortUrl} | Created by: {CreatedBy}", url.Id, url.CreatedBy);
+                    throw;
+                }
             }
         }
-    }
-
-    public class MyDocument
-    {
-        public string Id { get; set; }
-
-        public string Text { get; set; }
-
-        public int Number { get; set; }
-
-        public bool Boolean { get; set; }
     }
 }
