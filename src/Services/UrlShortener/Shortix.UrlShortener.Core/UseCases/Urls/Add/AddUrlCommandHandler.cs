@@ -8,7 +8,7 @@ using Shortix.UrlShortener.Core.Models;
 namespace Shortix.UrlShortener.Core.UseCases.Urls.Add
 {
     internal sealed class AddUrlCommandHandler(
-        IUrlRepository urlRepository,
+        IShortUrlRepository urlRepository,
         ITokenService tokenService,
         TimeProvider timeProvider) : ICommandHandler<AddUrlCommand, AddUrlResponse>
     {

@@ -32,7 +32,6 @@ namespace Shortix.UrlShortener.Infrastructure
             services.AddValidatorsFromAssembly(AssemblyReference.Assembly, includeInternalTypes: true);
 
             services.AddSingleton<ITokenService, TokenService>();
-            services.AddTransient<IUrlRepository, UrlRepository>();
             services.AddSingleton<IEnvironmentManager, EnvironmentManager>();
 
             services.AddHostedService<TokenRangeManager>();
@@ -77,16 +76,27 @@ namespace Shortix.UrlShortener.Infrastructure
                 return new CosmosClient(configuration["CosmosDb:ConnectionString"]!);
             });
 
-            services.AddSingleton(c =>
+            services.AddSingleton<IShortUrlRepository>(c =>
             {
                 var client = c.GetRequiredService<CosmosClient>();
 
-                return client.GetContainer(
+                var container = client.GetContainer(
                     configuration["CosmosDb:DatabaseName"]!,
                     configuration["CosmosDb:ContainerName"]!);
+
+                return new ShortUrlRepository(container);
             });
 
-            services.AddSingleton<IUrlRepository, UrlRepository>();
+            services.AddSingleton<IUserUrlsRepository>(c =>
+            {
+                var client = c.GetRequiredService<CosmosClient>();
+
+                var container = client.GetContainer(
+                    configuration["CosmosDb:ByUserDatabaseName"]!,
+                    configuration["CosmosDb:ByUserContainerName"]!);
+
+                return new UserUrlsRepository(container);
+            });
 
             return services;
         }

@@ -59,6 +59,14 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
         value: 'items'
       }
       {
+        name: 'ByUserDatabaseName'
+        value: 'urls'
+      }
+      {
+        name: 'ByUserContainerName'
+        value: 'byUser'
+      }
+      {
         name: 'TokenRangeService__BaseUrl'
         value: tokenRangeApi.outputs.url
       }
