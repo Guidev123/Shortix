@@ -21,7 +21,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2025-03-01' = {
 resource function 'Microsoft.Web/sites@2025-03-01' = {
   name: name
   location: location
-  kind: 'functionapp, linux'
+  kind: 'functionapp,linux'
   properties: {
     serverFarmId: appServicePlan.id
     httpsOnly: true
