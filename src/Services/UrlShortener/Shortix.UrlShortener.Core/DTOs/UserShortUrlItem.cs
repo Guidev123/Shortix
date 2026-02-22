@@ -1,7 +1,7 @@
 ﻿namespace Shortix.UrlShortener.Core.DTOs
 {
     public sealed record UserShortUrlItem(
-        string ShortUrl,
+        string ShortUrlId,
         string LongUrl,
         DateTimeOffset CreatedOn
         );
