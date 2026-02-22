@@ -9,6 +9,8 @@ namespace Shortix.UrlShortener.WebApi.Configurations
 {
     public static class ApiConfiguration
     {
+        private const string CorsPolicyName = "AllowWebApp";
+
         extension(WebApplicationBuilder builder)
         {
             public WebApplicationBuilder AddApiConfiguration()
@@ -23,6 +25,21 @@ namespace Shortix.UrlShortener.WebApi.Configurations
                 builder.Services.AddEndpoints(typeof(ApiConfiguration).Assembly);
 
                 builder.Services.AddInfrastructureModule(builder.Configuration, builder.Environment);
+
+                builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy(CorsPolicyName, policy =>
+                    {
+                        if (builder.Configuration["WebAppEndpoints"] is null) return;
+
+                        var origins = builder.Configuration["WebAppEndpoints"]!.Split(',');
+
+                        policy
+                            .WithOrigins([.. origins])
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+                });
 
                 return builder;
             }
@@ -68,6 +85,8 @@ namespace Shortix.UrlShortener.WebApi.Configurations
             public WebApplication UseApiConfiguration()
             {
                 app.UseSwaggerConfig();
+
+                app.UseCors(CorsPolicyName);
 
                 app.UseAuthentication();
                 app.UseAuthorization();

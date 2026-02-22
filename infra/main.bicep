@@ -53,8 +53,8 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
 module urlShortenerApi 'modules/compute/appservice.bicep' = {
   name: 'urlShortenerApiDeployment'
   params: {
-    appName: 'urlShortenerApi-${env}'
-    appServicePlanName: 'plan-urlShortenerApi-${env}'
+    appName: 'urlShortenerApi-${uniqueId}-${env}'
+    appServicePlanName: 'plan-urlShortenerApi-${uniqueId}-${env}'
     location: location
     keyVaultName: keyVaultName
     appSettings: [
@@ -94,6 +94,10 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
         name: 'AzureAd__Scopes'
         value: 'Urls.Read'
       }
+      {
+        name: 'WebAppEndpoints'
+        value: staticWebApp.outputs.url
+      }
     ]
   }
   dependsOn: [
@@ -104,8 +108,8 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
 module tokenRangeApi 'modules/compute/appservice.bicep' = {
   name: 'tokenRangeApiDeployment'
   params: {
-    appName: 'tokenRangeApi-${env}'
-    appServicePlanName: 'plan-tokenRangeApi-${env}'
+    appName: 'tokenRangeApi-${uniqueId}-${env}'
+    appServicePlanName: 'plan-tokenRangeApi-${uniqueId}-${env}'
     location: location
     keyVaultName: keyVaultName
   }
@@ -117,8 +121,8 @@ module tokenRangeApi 'modules/compute/appservice.bicep' = {
 module redirectApi 'modules/compute/appservice.bicep' = {
   name: 'redirectApiDeployment'
   params: {
-    appName: 'redirectApi-${env}'
-    appServicePlanName: 'plan-redirectApi-${env}'
+    appName: 'redirectApi-${uniqueId}-${env}'
+    appServicePlanName: 'plan-redirectApi-${uniqueId}-${env}'
     location: location
     keyVaultName: keyVaultName
     appSettings: [
@@ -140,8 +144,8 @@ module redirectApi 'modules/compute/appservice.bicep' = {
 module cosmosTriggerFunction 'modules/compute/function.bicep' = {
   name: 'cosmosTriggerFunctionDeployment'
   params: {
-    name: 'func-cosmosTriggerPropagation-${env}'
-    appServicePlanName: 'plan-cosmosTriggerFunction-${env}'
+    name: 'func-cosmosTriggerPropagation-${uniqueId}-${env}'
+    appServicePlanName: 'plan-cosmosTriggerFunction-${uniqueId}-${env}'
     location: location
     keyVaultName: keyVaultName
     storageAccountConnectionString: storageAccount.outputs.storageConnectionString
