@@ -8,13 +8,17 @@ using MidR.DependencyInjection;
 using Shortix.Commons.Core.Behaviors;
 using Shortix.UrlShortener.Core;
 using Shortix.UrlShortener.Core.Interfaces;
+using Shortix.UrlShortener.Infrastructure.BackgroundServices;
 using Shortix.UrlShortener.Infrastructure.Data.Repositories;
+using Shortix.UrlShortener.Infrastructure.ExternalServices;
 using Shortix.UrlShortener.Infrastructure.Services;
 
 namespace Shortix.UrlShortener.Infrastructure
 {
     public static class InfrastructureModule
     {
+        public const string TokenRangesHttpClientName = "TokenRanges";
+
         public static IServiceCollection AddInfrastructureModule(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
         {
             services.AddCosmosDb(configuration, environment);
@@ -28,7 +32,16 @@ namespace Shortix.UrlShortener.Infrastructure
             services.AddValidatorsFromAssembly(AssemblyReference.Assembly, includeInternalTypes: true);
 
             services.AddSingleton<ITokenService, TokenService>();
-            services.AddTransient<IUrlRepository, UrlRepository>();
+            services.AddSingleton<IEnvironmentManager, EnvironmentManager>();
+
+            services.AddHostedService<TokenRangeManager>();
+
+            services.AddHttpClient(TokenRangesHttpClientName, client =>
+            {
+                client.BaseAddress = new Uri(configuration["TokenRangeService:BaseUrl"]!);
+            });
+
+            services.AddSingleton<ITokenRangeApiService, TokenRangeApiService>();
 
             return services;
         }
@@ -63,16 +76,27 @@ namespace Shortix.UrlShortener.Infrastructure
                 return new CosmosClient(configuration["CosmosDb:ConnectionString"]!);
             });
 
-            services.AddSingleton(c =>
+            services.AddSingleton<IShortUrlRepository>(c =>
             {
                 var client = c.GetRequiredService<CosmosClient>();
 
-                return client.GetContainer(
+                var container = client.GetContainer(
                     configuration["CosmosDb:DatabaseName"]!,
                     configuration["CosmosDb:ContainerName"]!);
+
+                return new ShortUrlRepository(container);
             });
 
-            services.AddSingleton<IUrlRepository, UrlRepository>();
+            services.AddSingleton<IUserUrlsRepository>(c =>
+            {
+                var client = c.GetRequiredService<CosmosClient>();
+
+                var container = client.GetContainer(
+                    configuration["CosmosDb:ByUserDatabaseName"]!,
+                    configuration["CosmosDb:ByUserContainerName"]!);
+
+                return new UserUrlsRepository(container);
+            });
 
             return services;
         }

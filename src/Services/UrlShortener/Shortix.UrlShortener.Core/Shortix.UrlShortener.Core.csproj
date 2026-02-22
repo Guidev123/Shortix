@@ -11,7 +11,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="Shortix.UrlShortener.Core.Tests" />
+		<InternalsVisibleTo Include="UrlShortener.Tests" />
 	</ItemGroup>
 
 	<ItemGroup>

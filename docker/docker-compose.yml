@@ -13,6 +13,14 @@ services:
       - cosmos-data:/data
     networks:
       - private-net
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4G
+        reservations:
+          cpus: "1.0"
+          memory: 2G
 
   pgsql:
     image: postgres:16
@@ -21,7 +29,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: appdb
+      POSTGRES_DB: ranges
       POSTGRES_USER: appuser
       POSTGRES_PASSWORD: apppassword
     volumes:
@@ -29,9 +37,22 @@ services:
     networks:
       - private-net
 
+  redis:
+    image: redis:7
+    container_name: redis-dev
+    hostname: redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - private-net
+
 volumes:
   cosmos-data:
   pgsql-data:
+  redis-data:
 
 networks:
   private-net:

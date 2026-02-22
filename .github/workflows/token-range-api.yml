@@ -5,10 +5,7 @@ on:
     branches: ["main"]
     paths:
       - src/Services/TokenRanges/**
-  pull_request:
-    branches: ["main"]
-    paths:
-      - src/Services/TokenRanges/**
+  workflow_dispatch:
 
 jobs:
   build:
@@ -26,7 +23,7 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal
       - name: dotnet publish
-        run: dotnet publish ./src/Services/TokenRanges/Shortix.TokenRanges.WebApi -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish src/Services/TokenRanges/Shortix.TokenRanges.WebApi -c Release -o ${{env.DOTNET_ROOT}}/myapp
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:

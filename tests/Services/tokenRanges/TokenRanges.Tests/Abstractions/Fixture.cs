@@ -20,8 +20,7 @@ namespace TokenRanges.Tests.Abstractions
 
             Environment.SetEnvironmentVariable("Postgres__ConnectionString", ConnectionString);
 
-            var tableSql = await File.ReadAllTextAsync("Abstractions/Files/TokenRangesTable.sql");
-
+            var tableSql = await File.ReadAllTextAsync("../../../../../../../sql/TokenRanges/TokenRangesTable.sql");
             await using var connection = new NpgsqlConnection(ConnectionString);
             await connection.OpenAsync();
 

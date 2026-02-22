@@ -1,5 +1,6 @@
 ﻿using Shortix.Commons.Core.Results;
 using Shortix.UrlShortener.Core.DTOs;
+using Shortix.UrlShortener.Core.Events;
 using Shortix.UrlShortener.Core.Interfaces;
 using System.Collections.Concurrent;
 
@@ -58,7 +59,7 @@ namespace Shortix.UrlShortener.Infrastructure.Services
             return currentIndex >= total * 0.8;
         }
 
-        private event EventHandler? ReachingRangeLimit;
+        public event EventHandler? ReachingRangeLimit;
 
         private void OnRangeThresholdReached(EventArgs e)
         {
@@ -67,18 +68,9 @@ namespace Shortix.UrlShortener.Infrastructure.Services
 
         private void MoveToNextRange()
         {
-            if (!_ranges.TryDequeue(out _currentTokenRange))
-            {
-                throw new IndexOutOfRangeException();
-            }
+            if (!_ranges.TryDequeue(out _currentTokenRange)) throw new IndexOutOfRangeException();
 
             _currentToken = _currentTokenRange.Start;
         }
-    }
-
-    internal sealed class ReachingRangeLimitEventArgs : EventArgs
-    {
-        public long Token { get; set; }
-        public long RangeLimit { get; set; }
     }
 }

@@ -8,7 +8,7 @@ using Shortix.UrlShortener.Core.Models;
 namespace Shortix.UrlShortener.Core.UseCases.Urls.Add
 {
     internal sealed class AddUrlCommandHandler(
-        IUrlRepository urlRepository,
+        IShortUrlRepository urlRepository,
         ITokenService tokenService,
         TimeProvider timeProvider) : ICommandHandler<AddUrlCommand, AddUrlResponse>
     {
@@ -32,8 +32,6 @@ namespace Shortix.UrlShortener.Core.UseCases.Urls.Add
 
         private Result<UniqueUrlResponse> GenerateUniqueUrl()
         {
-            tokenService.AssignRange(199999, 999999);
-
             var tokenResult = tokenService.GetToken();
             if (tokenResult.IsFailure)
             {

@@ -1,46 +1,130 @@
-param environment string
-param location string = resourceGroup().location
-var uniqueId = uniqueString(subscription().subscriptionId, resourceGroup().name)
 @secure()
 param pgSqlPassword string
+param env string
+param location string = resourceGroup().location
+var uniqueId = uniqueString(subscription().subscriptionId, resourceGroup().name)
+var keyVaultName = 'kv-${uniqueId}-${env}'
+
+// ================== Identity resources ==================
+
+module entraApp 'modules/identity/entra-app.bicep' = {
+  name: 'entraAppDeployment'
+  params: {
+    applicationName: 'web-${uniqueId}-${env}'
+    spaRedirectUris: env == 'dev'
+      ? [
+          'http://localhost:3000'
+          staticWebApp.outputs.url
+        ]
+      : [
+          staticWebApp.outputs.url
+        ]
+  }
+}
+
+// ================== Secrets resources ==================
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
   params: {
-    vaultName: 'kv-${uniqueId}-${environment}'
+    vaultName: 'kv-${uniqueId}-${env}'
     location: location
-  }
-}
-
-module postgres 'modules/storage/postgresql.bicep' = {
-  name: 'postgresDeployment'
-  params: {
-    name: 'postgresql-${uniqueId}-${environment}'
-    location: location
-    administratorLogin: 'adminuser'
-    administratorLoginPassword: pgSqlPassword
-    keyVaultName: keyVault.outputs.name
   }
 }
 
 module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' = {
   name: 'keyVaultRoleAssignmentDeployment'
   params: {
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
     principalIds: [
       urlShortenerApi.outputs.principalId
       tokenRangeApi.outputs.principalId
+      redirectApi.outputs.principalId
+      cosmosTriggerFunction.outputs.principalId
     ]
   }
+  dependsOn: [
+    keyVault
+  ]
 }
+
+// ================== Compute resources ==================
 
 module urlShortenerApi 'modules/compute/appservice.bicep' = {
   name: 'urlShortenerApiDeployment'
   params: {
-    appName: 'urlShortenerApi-${environment}'
-    appServicePlanName: 'plan-urlShortenerApi-${environment}'
+    appName: 'urlShortenerApi-${uniqueId}-${env}'
+    appServicePlanName: 'plan-urlShortenerApi-${uniqueId}-${env}'
     location: location
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
+    appSettings: [
+      {
+        name: 'DatabaseName'
+        value: 'urls'
+      }
+      {
+        name: 'ContainerName'
+        value: 'items'
+      }
+      {
+        name: 'ByUserDatabaseName'
+        value: 'urls'
+      }
+      {
+        name: 'ByUserContainerName'
+        value: 'byUser'
+      }
+      {
+        name: 'TokenRangeService__BaseUrl'
+        value: tokenRangeApi.outputs.url
+      }
+      {
+        name: 'AzureAd__Instance'
+        value: environment().authentication.loginEndpoint
+      }
+      {
+        name: 'AzureAd__TenantId'
+        value: tenant().tenantId
+      }
+      {
+        name: 'AzureAd__ClientId'
+        value: entraApp.outputs.applicationId
+      }
+      {
+        name: 'AzureAd__Scopes'
+        value: 'Urls.Read'
+      }
+      {
+        name: 'WebAppEndpoints'
+        value: staticWebApp.outputs.url
+      }
+    ]
+  }
+  dependsOn: [
+    keyVault
+  ]
+}
+
+module tokenRangeApi 'modules/compute/appservice.bicep' = {
+  name: 'tokenRangeApiDeployment'
+  params: {
+    appName: 'tokenRangeApi-${uniqueId}-${env}'
+    appServicePlanName: 'plan-tokenRangeApi-${uniqueId}-${env}'
+    location: location
+    keyVaultName: keyVaultName
+  }
+  dependsOn: [
+    keyVault
+  ]
+}
+
+module redirectApi 'modules/compute/appservice.bicep' = {
+  name: 'redirectApiDeployment'
+  params: {
+    appName: 'redirectApi-${uniqueId}-${env}'
+    appServicePlanName: 'plan-redirectApi-${uniqueId}-${env}'
+    location: location
+    keyVaultName: keyVaultName
     appSettings: [
       {
         name: 'DatabaseName'
@@ -52,26 +136,97 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
       }
     ]
   }
+  dependsOn: [
+    keyVault
+  ]
 }
 
-module tokenRangeApi 'modules/compute/appservice.bicep' = {
-  name: 'tokenRangeApiDeployment'
+module cosmosTriggerFunction 'modules/compute/function.bicep' = {
+  name: 'cosmosTriggerFunctionDeployment'
   params: {
-    appName: 'tokenRangeApi-${environment}'
-    appServicePlanName: 'plan-tokenRangeApi-${environment}'
+    name: 'func-cosmosTriggerPropagation-${uniqueId}-${env}'
+    appServicePlanName: 'plan-cosmosTriggerFunction-${uniqueId}-${env}'
     location: location
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
+    storageAccountConnectionString: storageAccount.outputs.storageConnectionString
+    appSettings: [
+      {
+        name: 'CosmosDbConnection'
+        value: '@Microsoft.KeyVault(SecretUri=https://${keyVaultName}.vault.azure.net/secrets/CosmosDb--ConnectionString/)'
+      }
+      {
+        name: 'TargetDatabaseName'
+        value: 'urls'
+      }
+      {
+        name: 'TargetContainerName'
+        value: 'byUser'
+      }
+    ]
   }
+  dependsOn: [
+    keyVault
+    cosmosDb
+  ]
+}
+
+module staticWebApp 'modules/web/static-web-app.bicep' = {
+  name: 'staticWebAppDeployment'
+  params: {
+    name: 'url-shortener-${uniqueId}-${env}'
+  }
+}
+
+// ================== Storage resources ==================
+
+module storageAccount 'modules/storage/storage-account.bicep' = {
+  name: 'storageAccountDeployment'
+  params: {
+    name: 'storage${uniqueId}${env}'
+    location: location
+  }
+  dependsOn: [
+    keyVault
+  ]
 }
 
 module cosmosDb 'modules/storage/cosmosdb.bicep' = {
   name: 'cosmosDbDeployment'
   params: {
-    name: 'cosmos-db-${uniqueId}'
+    name: 'cosmos-db-${uniqueId}-${env}'
     location: location
     kind: 'GlobalDocumentDB'
     databaseName: 'urls'
     locationName: 'BrazilSouth'
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
   }
+  dependsOn: [
+    keyVault
+  ]
+}
+
+module postgres 'modules/storage/postgresql.bicep' = {
+  name: 'postgresDeployment'
+  params: {
+    name: 'postgresql-${uniqueId}-${env}'
+    location: location
+    administratorLogin: 'adminuser'
+    administratorLoginPassword: pgSqlPassword
+    keyVaultName: keyVaultName
+  }
+  dependsOn: [
+    keyVault
+  ]
+}
+
+module redisCache 'modules/storage/redis-cache.bicep' = {
+  name: 'redisCacheDeployment'
+  params: {
+    name: 'redis-cache-${uniqueId}-${env}'
+    location: location
+    keyVaultName: keyVaultName
+  }
+  dependsOn: [
+    keyVault
+  ]
 }
