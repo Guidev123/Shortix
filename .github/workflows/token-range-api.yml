@@ -5,10 +5,7 @@ on:
     branches: ["main"]
     paths:
       - src/Services/TokenRanges/**
-  pull_request:
-    branches: ["main"]
-    paths:
-      - src/Services/TokenRanges/**
+  workflow_dispatch:
 
 jobs:
   build:

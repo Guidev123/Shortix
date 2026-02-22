@@ -5,10 +5,7 @@ on:
     branches: ["main"]
     paths:
       - src/Services/UrlShortener/**
-  pull_request:
-    branches: ["main"]
-    paths:
-      - src/Services/UrlShortener/**
+  workflow_dispatch:
 
 jobs:
   build:
