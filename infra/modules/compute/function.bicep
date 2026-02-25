@@ -27,6 +27,7 @@ resource function 'Microsoft.Web/sites@2025-03-01' = {
     httpsOnly: true
     publicNetworkAccess: 'Enabled'
     siteConfig: {
+      healthCheckPath: '/api/healthz'
       linuxFxVersion: 'DOTNET-ISOLATED|8.0'
       alwaysOn: true
       ftpsState: 'FtpsOnly'

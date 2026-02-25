@@ -23,6 +23,7 @@ resource webApp 'Microsoft.Web/sites@2025-03-01' = {
     serverFarmId: appServicePlan.id
     httpsOnly: true
     siteConfig: {
+      healthCheckPath: '/healthz'
       linuxFxVersion: 'DOTNETCORE|10.0'
       appSettings: concat(
         [

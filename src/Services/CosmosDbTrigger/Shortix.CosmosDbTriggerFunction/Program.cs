@@ -6,6 +6,7 @@ var builder = FunctionsApplication
     .CreateBuilder(args)
     .ConfigureFunctionsWebApplication()
     .AddKeyVault()
-    .AddCosmosDb();
+    .AddCosmosDb()
+    .AddFunctionHealthChecks();
 
 builder.Build().Run();

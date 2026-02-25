@@ -1,4 +1,5 @@
 ﻿using Azure.Identity;
+using HealthChecks.CosmosDb;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker.Builder;
@@ -61,6 +62,16 @@ namespace Shortix.CosmosDbTriggerFunction.Configurations
                     builder.Configuration["TargetContainerName"]!);
             });
 
+            return builder;
+        }
+
+        public static FunctionsApplicationBuilder AddFunctionHealthChecks(this FunctionsApplicationBuilder builder)
+        {
+            builder.Services.AddHealthChecks()
+                .AddAzureCosmosDB(optionsFactory: _ => new AzureCosmosDbHealthCheckOptions()
+                {
+                    DatabaseId = builder.Configuration["TargetDatabaseName"]!,
+                });
             return builder;
         }
     }

@@ -1,4 +1,7 @@
-﻿using MidR.DependencyInjection;
+﻿using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using MidR.DependencyInjection;
 using Shortix.Commons.Infrastructure;
 using Shortix.Commons.Infrastructure.Extensions;
 using Shortix.TokenRanges.WebApi.Configurations;
@@ -14,6 +17,8 @@ namespace Shortix.TokenRanges.WebApi.Configurations
             public WebApplicationBuilder AddApiConfiguration()
             {
                 builder.AddCommonConfiguration();
+
+                builder.AddApplicationHealthChecks();
 
                 builder.Services.AddMidR(Assembly.GetExecutingAssembly());
 
@@ -34,13 +39,28 @@ namespace Shortix.TokenRanges.WebApi.Configurations
 
                 return builder;
             }
+
+            public WebApplicationBuilder AddApplicationHealthChecks()
+            {
+                builder.Services.AddHealthChecks()
+                    .AddNpgSql(builder.Configuration["Postgres:ConnectionString"]!);
+
+                return builder;
+            }
         }
 
         extension(WebApplication app)
         {
             public WebApplication UseApiConfiguration()
             {
-                app.UseCommonPipeline().UseSwaggerConfig();
+                app.UseCommonPipeline();
+
+                app.MapHealthChecks("/healthz", new HealthCheckOptions()
+                {
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+
+                app.UseSwaggerConfig();
 
                 return app;
             }

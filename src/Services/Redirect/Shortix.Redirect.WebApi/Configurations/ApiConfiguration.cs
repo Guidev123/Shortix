@@ -1,8 +1,11 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using HealthChecks.CosmosDb;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MidR.DependencyInjection;
 using Shortix.Commons.Infrastructure;
 using Shortix.Commons.Infrastructure.Extensions;
-using Shortix.Redirect.WebApi.Configurations;
 using Shortix.Redirect.WebApi.Interfaces;
 using Shortix.Redirect.WebApi.Services;
 using StackExchange.Redis;
@@ -17,6 +20,8 @@ namespace Shortix.Redirect.WebApi.Configurations
             public WebApplicationBuilder AddApiConfiguration()
             {
                 builder.AddCommonConfiguration();
+
+                builder.AddApplicationHealthChecks();
 
                 builder.Services.AddMidR(Assembly.GetExecutingAssembly());
 
@@ -76,13 +81,35 @@ namespace Shortix.Redirect.WebApi.Configurations
 
                 return builder;
             }
+
+            public WebApplicationBuilder AddApplicationHealthChecks()
+            {
+                builder.Services.AddHealthChecks()
+                    .AddAzureCosmosDB(optionsFactory: _ => new AzureCosmosDbHealthCheckOptions()
+                    {
+                        DatabaseId = builder.Configuration["CosmosDb:DatabaseName"]!,
+                    })
+                    .AddRedis(provider =>
+                    {
+                        return provider.GetRequiredService<IConnectionMultiplexer>();
+                    }, failureStatus: HealthStatus.Degraded);
+
+                return builder;
+            }
         }
 
         extension(WebApplication app)
         {
             public WebApplication UseApiConfiguration()
             {
-                app.UseCommonPipeline().UseSwaggerConfig();
+                app.UseCommonPipeline();
+
+                app.MapHealthChecks("/healthz", new HealthCheckOptions()
+                {
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+
+                app.UseSwaggerConfig();
 
                 return app;
             }
