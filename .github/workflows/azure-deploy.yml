@@ -33,6 +33,7 @@ jobs:
           parameters: >
             env=dev
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
+            customDomainName=${{ vars.CUSTOM_DOMAIN_NAME }}
 
   deploy-stg:
     runs-on: ubuntu-latest
@@ -60,6 +61,7 @@ jobs:
           parameters: >
             env=stg
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
+            customDomainName=${{ vars.CUSTOM_DOMAIN_NAME }}
 
   deploy-prd:
     runs-on: ubuntu-latest
@@ -87,3 +89,4 @@ jobs:
           parameters: >
             env=prd
             pgSqlPassword=${{ secrets.PGSQL_PASSWORD }}
+            customDomainName=${{ vars.CUSTOM_DOMAIN_NAME }}

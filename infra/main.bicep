@@ -1,9 +1,37 @@
 @secure()
 param pgSqlPassword string
 param env string
+param customDomainName string
 param location string = resourceGroup().location
 var uniqueId = uniqueString(subscription().subscriptionId, resourceGroup().name)
 var keyVaultName = 'kv-${uniqueId}-${env}'
+
+// ================== Networking resources ==================
+
+module frontDoor 'modules/networking/front-door.bicep' = {
+  name: 'frontDoorDeployment'
+  params: {
+    endpointName: 'endpoint-${uniqueId}-${env}'
+    profileName: 'front-door-${uniqueId}-${env}'
+    wafPolicyName: 'wafPolicy${uniqueId}-${env}'
+    customDomainHostName: customDomainName
+  }
+}
+
+module frontDoorRoutes 'modules/networking/front-door-routes.bicep' = {
+  name: 'frontDoorRoutesDeployment'
+  params: {
+    endpointName: 'endpoint-${uniqueId}-${env}'
+    profileName: 'front-door-${uniqueId}-${env}'
+    originRedirectGroupName: 'origin-group-redirect-${uniqueId}-${env}'
+    originUrlShortenerGroupName: 'origin-group-url-shortener-${uniqueId}-${env}'
+    originWebApplicationGroupName: 'origin-group-web-application-${uniqueId}-${env}'
+    redirectApiHostName: redirectApi.outputs.hostname
+    urlShortenerApiHostName: urlShortenerApi.outputs.hostname
+    webAppHostName: staticWebApp.outputs.hostname
+    customDomainId: frontDoor.outputs.customDomainId
+  }
+}
 
 // ================== Identity resources ==================
 
@@ -15,9 +43,13 @@ module entraApp 'modules/identity/entra-app.bicep' = {
       ? [
           'http://localhost:3000'
           staticWebApp.outputs.url
+          'https://${frontDoor.outputs.endpointHostName}'
+          'https://${customDomainName}'
         ]
       : [
           staticWebApp.outputs.url
+          'https://${frontDoor.outputs.endpointHostName}'
+          'https://${customDomainName}'
         ]
   }
 }
