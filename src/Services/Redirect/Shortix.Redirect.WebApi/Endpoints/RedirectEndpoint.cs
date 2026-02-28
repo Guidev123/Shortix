@@ -2,6 +2,7 @@
 using Shortix.Commons.Infrastructure.Endpoints;
 using Shortix.Commons.Infrastructure.Extensions;
 using Shortix.Redirect.WebApi.Interfaces;
+using Shortix.Redirect.WebApi.Telemetry;
 
 namespace Shortix.Redirect.WebApi.Endpoints
 {
@@ -14,6 +15,12 @@ namespace Shortix.Redirect.WebApi.Endpoints
                                                                    CancellationToken cancellationToken) =>
             {
                 var result = await urlShortenerService.GetLongUrlAsync(shortUrl, cancellationToken);
+
+                if (result.IsSuccess)
+                {
+                    ApplicationDiagnostics.RedirectsCounter.Add(1);
+                }
+
                 return result.Match(success => Results.Redirect(success.LongUrl, true), ApiResults.Problem);
             });
         }

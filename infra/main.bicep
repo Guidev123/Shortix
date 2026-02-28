@@ -48,6 +48,16 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
   ]
 }
 
+// ================== Telemetry resources ==================
+
+module logAnalyticsWorkspace 'modules/telemetry/log-analytics.bicep' = {
+  name: 'logAnalyticsWorkspaceDeployment'
+  params: {
+    name: 'log-analytics-ws-${uniqueId}-${env}'
+    location: location
+  }
+}
+
 // ================== Compute resources ==================
 
 module urlShortenerApi 'modules/compute/appservice.bicep' = {
@@ -57,6 +67,7 @@ module urlShortenerApi 'modules/compute/appservice.bicep' = {
     appServicePlanName: 'plan-urlShortenerApi-${uniqueId}-${env}'
     location: location
     keyVaultName: keyVaultName
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     appSettings: [
       {
         name: 'DatabaseName'
@@ -110,6 +121,7 @@ module tokenRangeApi 'modules/compute/appservice.bicep' = {
   params: {
     appName: 'tokenRangeApi-${uniqueId}-${env}'
     appServicePlanName: 'plan-tokenRangeApi-${uniqueId}-${env}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     location: location
     keyVaultName: keyVaultName
   }
@@ -123,6 +135,7 @@ module redirectApi 'modules/compute/appservice.bicep' = {
   params: {
     appName: 'redirectApi-${uniqueId}-${env}'
     appServicePlanName: 'plan-redirectApi-${uniqueId}-${env}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     location: location
     keyVaultName: keyVaultName
     appSettings: [
@@ -146,6 +159,7 @@ module cosmosTriggerFunction 'modules/compute/function.bicep' = {
   params: {
     name: 'func-cosmosTriggerPropagation-${uniqueId}-${env}'
     appServicePlanName: 'plan-cosmosTriggerFunction-${uniqueId}-${env}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     location: location
     keyVaultName: keyVaultName
     storageAccountConnectionString: storageAccount.outputs.storageConnectionString
