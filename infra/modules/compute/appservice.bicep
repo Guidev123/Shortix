@@ -4,6 +4,8 @@ param appName string
 param keyVaultName string
 param appSettings array = []
 param logAnalyticsWorkspaceId string
+param vnetId string
+param ipSecurityRestrictions array = []
 
 module appInsights '../telemetry/app-insights.bicep' = {
   name: '${appName}-AppInsightsDeployment'
@@ -32,9 +34,23 @@ resource webApp 'Microsoft.Web/sites@2025-03-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     httpsOnly: true
+    virtualNetworkSubnetId: vnetId
     siteConfig: {
       healthCheckPath: '/healthz'
       linuxFxVersion: 'DOTNETCORE|10.0'
+      publicNetworkAccess: 'Enabled'
+      ipSecurityRestrictionsDefaultAction: 'Deny'
+      ipSecurityRestrictions: ipSecurityRestrictions
+      scmIpSecurityRestrictions: [
+        {
+          name: 'AllowGHDeploy'
+          action: 'Allow'
+          priority: 100
+          tag: 'ServiceTag'
+          ipAddress: 'AzureCloud'
+        }
+      ]
+      scmIpSecurityRestrictionsDefaultAction: 'Deny'
       appSettings: concat(
         [
           {
@@ -46,7 +62,7 @@ resource webApp 'Microsoft.Web/sites@2025-03-01' = {
             value: appInsights.outputs.instrumentationKey
           }
           {
-            name: 'APPINSIGHTS_CONNECTIONSTRING'
+            name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
             value: appInsights.outputs.connectionString
           }
         ],

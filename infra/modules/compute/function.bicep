@@ -6,6 +6,7 @@ param appSettings array = []
 @secure()
 param storageAccountConnectionString string
 param logAnalyticsWorkspaceId string
+param subnetId string
 
 module appInsights '../telemetry/app-insights.bicep' = {
   name: '${name}-AppInsightsDeployment'
@@ -42,6 +43,18 @@ resource function 'Microsoft.Web/sites@2025-03-01' = {
       alwaysOn: true
       ftpsState: 'FtpsOnly'
       minTlsVersion: '1.2'
+      publicNetworkAccess: 'Enabled'
+      ipSecurityRestrictionsDefaultAction: 'Deny'
+      scmIpSecurityRestrictions: [
+        {
+          name: 'AllowGHDeploy'
+          action: 'Allow'
+          priority: 100
+          tag: 'ServiceTag'
+          ipAddress: 'AzureCloud'
+        }
+      ]
+      scmIpSecurityRestrictionsDefaultAction: 'Deny'
       appSettings: concat(
         [
           {
@@ -77,7 +90,7 @@ resource function 'Microsoft.Web/sites@2025-03-01' = {
             value: appInsights.outputs.instrumentationKey
           }
           {
-            name: 'APPINSIGHTS_CONNECTIONSTRING'
+            name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
             value: appInsights.outputs.connectionString
           }
         ],
@@ -95,6 +108,14 @@ resource webAppConfig 'Microsoft.Web/sites/config@2025-03-01' = {
   name: 'web'
   properties: {
     scmType: 'GitHub'
+  }
+}
+
+resource functionVirtualNetwork 'Microsoft.Web/sites/networkConfig@2025-03-01' = {
+  parent: function
+  name: 'virtualNetwork'
+  properties: {
+    subnetResourceId: subnetId
   }
 }
 
