@@ -16,10 +16,13 @@ namespace Shortix.CosmosDbTriggerFunction.Configurations
 
         public static FunctionsApplicationBuilder AddAppInsights(this FunctionsApplicationBuilder builder)
         {
-            builder
-                .Services
-                .AddApplicationInsightsTelemetryWorkerService()
-                .ConfigureFunctionsApplicationInsights();
+            if (builder.Environment.IsProduction())
+            {
+                builder
+                    .Services
+                    .AddApplicationInsightsTelemetryWorkerService()
+                    .ConfigureFunctionsApplicationInsights();
+            }
 
             return builder;
         }
