@@ -4,7 +4,7 @@
 
 ---
 
-If you're new to this project, start with the **[Architecture doc](docs/ARCHITECTURE.md)**.
+If you're new to this project, start with the **[Architecture doc](/docs/architecture/overview.md)**.
 
 It covers how the system handles 1k req/s on the redirect path, why there are two CosmosDB containers doing different jobs, and how URL Shortener instances generate short codes without ever talking to a database for ID generation.
 
