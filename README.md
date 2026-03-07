@@ -1,62 +1,34 @@
 # Shortix
 
-Highly scalable URL shortener
+> High-throughput URL shortener built for internal use — 1,000 redirects/second, Base62 encoding, fully isolated on Azure.
 
-## IaC
+---
 
-How to provision all the infrastructure
+If you're new to this project, start with the **[Architecture doc](docs/ARCHITECTURE.md)**.
 
-## Log in into Azure
+It covers how the system handles 1k req/s on the redirect path, why there are two CosmosDB containers doing different jobs, and how URL Shortener instances generate short codes without ever talking to a database for ID generation.
 
-```bash
-az login
-```
+---
 
-## Create RG
+## Docs
 
-```bash
-az group create --name shortix-urlshortener-dev-rg --location eastus
-```
+| Document | What it covers |
+|---|---|
+| [Architecture](/docs/architecture/overview.md) | System design, services, data flows and security model |
+| [Bootstrap](/docs/getting-started.md) | How to provision the Azure environment and configure GitHub Actions from scratch |
+| [IaC Reference](/docs/infra/main.md) | Module-by-module reference for all Bicep templates |
 
-## Deploy a template
+### IaC Reference
 
-```bash
-az deployment group what-if --resource-group shortix-urlshortener-dev-rg --template-file infra/main.bicep
-
-# Is everything ok?
-
-az deployment group create --resource-group shortix-urlshortener-dev-rg --template-file infra/main.bicep
-```
-
-## Create User for GH Actions
-
-```bash
-az ad sp create-for-rbac --name "Github-Actions-SP" --role contributor --scopes /subscriptions/{subscriptionId} --sdk-auth
-```
-
-## Apply to Custom Contributor Role
-
-```bash
-az ad sp create-for-rbac --name "Github-Actions-SP" --role infra_deploy --scopes /subscriptions/{subscriptionId} --sdk-auth
-
-az role assignment list --assignee {AppId} --output table
-```
-
-## Configure a federated identity credential on an app
-
-https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation-create-trust?pivots=identity-wif-apps-methods-azp#configure-a-federated-identity-credential-on-an-app
-
-## Get Azure Credentials
-
-```bash
-az ad sp credential reset --id {app-id} --sdk-auth
-```
-
-```json
-{
-  "clientId": "5e2ccd3f-fcd3-48ce-ac08-ee0dc97c157e",
-  "clientSecret": "PASSWORD-HERE",
-  "subscriptionId": "5e2ccd3f-fcd3-48ce-ac08-ee0dc97c157e",
-  "tenantId": "5e2ccd3f-fcd3-48ce-ac08-ee0dc97c157e"
-}
-```
+| Module | |
+|---|---|
+| [main.bicep](/docs/infra/main.md) | Entry point — full resource topology and dependency graph |
+| [compute/appservice](/docs/infra/modules/compute/compute-appservice.md) | App Service with VNet integration, Key Vault and App Insights |
+| [compute/function](/docs/infra/modules/compute/compute-function.md) | Azure Function App (dotnet-isolated) |
+| [networking/virtual-networking](/docs/infra/modules/networking/networking-virtual-networking.md) | VNet and subnet layout |
+| [networking/front-door](/docs/infra/modules/networking/networking-front-door.md) | Front Door profile, WAF and custom domain |
+| [networking/front-door-routes](/docs/infra/modules/networking/networking-front-door-routes.md) | Origin groups and routing rules |
+| [identity/entra-app](/docs/infra/modules/identity/identity-entra-app.md) | Entra App Registration and OAuth2 scopes |
+| [secrets/keyvault](/docs/infra/modules/secrets/secrets-keyvault.md) | Key Vault and RBAC role assignments |
+| [storage](/docs/infra/modules/storage/storage.md) | CosmosDB, PostgreSQL, Redis and Storage Account |
+| [telemetry & web](/docs/infra/modules/telemetry/telemetry-and-web.md) | App Insights, Log Analytics and Static Web App |
