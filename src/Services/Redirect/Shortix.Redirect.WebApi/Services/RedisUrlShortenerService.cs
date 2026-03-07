@@ -15,15 +15,22 @@ namespace Shortix.Redirect.WebApi.Services
 
         public async Task<Result<ReadLongUrlResponse>> GetLongUrlAsync(string shortUrl, CancellationToken cancellationToken = default)
         {
-            var cachedUrl = await _redisDb.StringGetAsync(shortUrl).WaitAsync(cancellationToken);
-            if (cachedUrl.HasValue)
+            try
             {
-                if (logger.IsEnabled(LogLevel.Information))
+                var cachedUrl = await _redisDb.StringGetAsync(shortUrl).WaitAsync(cancellationToken);
+                if (cachedUrl.HasValue)
                 {
-                    logger.LogInformation("[CACHE HIT] found cached long url for short URL: {ShortUrl}", shortUrl);
-                }
+                    if (logger.IsEnabled(LogLevel.Information))
+                    {
+                        logger.LogInformation("[CACHE HIT] found cached long url for short URL: {ShortUrl}", shortUrl);
+                    }
 
-                return Result.Success(new ReadLongUrlResponse(cachedUrl.ToString()));
+                    return Result.Success(new ReadLongUrlResponse(cachedUrl.ToString()));
+                }
+            }
+            catch (RedisException ex)
+            {
+                logger.LogError(ex, "Redis error while retrieving long URL for short URL: {ShortUrl}", shortUrl);
             }
 
             if (logger.IsEnabled(LogLevel.Warning))
@@ -37,11 +44,18 @@ namespace Shortix.Redirect.WebApi.Services
                 return getUrlResponse;
             }
 
-            await _redisDb.StringSetAsync(
-                shortUrl,
-                getUrlResponse.Value.LongUrl,
-                TimeSpan.FromHours(1)
-                ).WaitAsync(cancellationToken);
+            try
+            {
+                await _redisDb.StringSetAsync(
+                    shortUrl,
+                    getUrlResponse.Value.LongUrl,
+                    TimeSpan.FromHours(1)
+                    ).WaitAsync(cancellationToken);
+            }
+            catch (RedisException ex)
+            {
+                logger.LogError(ex, "Redis error while caching long URL for short URL: {ShortUrl}", shortUrl);
+            }
 
             return getUrlResponse;
         }

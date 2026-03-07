@@ -1,6 +1,8 @@
 ﻿using Azure.Identity;
+using HealthChecks.CosmosDb;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +13,19 @@ namespace Shortix.CosmosDbTriggerFunction.Configurations
     public static class FunctionConfiguration
     {
         private const string KeyVaultName = "KeyVaultName";
+
+        public static FunctionsApplicationBuilder AddAppInsights(this FunctionsApplicationBuilder builder)
+        {
+            if (builder.Environment.IsProduction())
+            {
+                builder
+                    .Services
+                    .AddApplicationInsightsTelemetryWorkerService()
+                    .ConfigureFunctionsApplicationInsights();
+            }
+
+            return builder;
+        }
 
         public static FunctionsApplicationBuilder AddKeyVault(this FunctionsApplicationBuilder builder)
         {
@@ -61,6 +76,16 @@ namespace Shortix.CosmosDbTriggerFunction.Configurations
                     builder.Configuration["TargetContainerName"]!);
             });
 
+            return builder;
+        }
+
+        public static FunctionsApplicationBuilder AddFunctionHealthChecks(this FunctionsApplicationBuilder builder)
+        {
+            builder.Services.AddHealthChecks()
+                .AddAzureCosmosDB(optionsFactory: _ => new AzureCosmosDbHealthCheckOptions()
+                {
+                    DatabaseId = builder.Configuration["TargetDatabaseName"]!,
+                });
             return builder;
         }
     }

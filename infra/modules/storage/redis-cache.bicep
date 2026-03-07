@@ -1,6 +1,8 @@
 param name string
 param location string
 param keyVaultName string
+param subnetId string
+param vnetId string
 
 resource redis 'Microsoft.Cache/redis@2024-11-01' = {
   name: name
@@ -12,7 +14,7 @@ resource redis 'Microsoft.Cache/redis@2024-11-01' = {
       capacity: 0
     }
     redisVersion: '6.0'
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     redisConfiguration: {
       'aad-enabled': 'True'
     }
@@ -28,6 +30,58 @@ resource cosmosDbConnectionString 'Microsoft.KeyVault/vaults/secrets@2024-11-01'
   name: 'Redis--ConnectionString'
   properties: {
     value: '${redis.name}.redis.cache.windows.net:6380,password=${redis.listKeys().primaryKey},ssl=True,abortConnect=False'
+  }
+}
+
+resource redisCachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2025-05-01' = {
+  name: 'privateendpoint-${name}'
+  location: location
+  properties: {
+    subnet: {
+      id: subnetId
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'privateendpoint-${redis.name}'
+        properties: {
+          privateLinkServiceId: redis.id
+          groupIds: [
+            'redisCache'
+          ]
+        }
+      }
+    ]
+  }
+}
+
+var privateDnsZoneName = 'privatelink.redis.cache.windows.net'
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+  name: privateDnsZoneName
+  location: 'global'
+}
+
+resource privateDnsZoneVNetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+  parent: privateDnsZone
+  name: uniqueString(vnetId)
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnetId
+    }
+  }
+}
+
+resource privateDnsZoneARecord 'Microsoft.Network/privateDnsZones/A@2024-06-01' = {
+  parent: privateDnsZone
+  name: redis.name
+  properties: {
+    aRecords: [
+      {
+        ipv4Address: redisCachePrivateEndpoint.properties.customDnsConfigs[0].ipAddresses[0]
+      }
+    ]
+    ttl: 3600
   }
 }
 

@@ -1,6 +1,15 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Azure.Monitor.OpenTelemetry.Exporter;
+using HealthChecks.CosmosDb;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Shortix.Commons.Infrastructure;
 using Shortix.Commons.Infrastructure.Extensions;
 using Shortix.UrlShortener.Infrastructure;
@@ -18,6 +27,8 @@ namespace Shortix.UrlShortener.WebApi.Configurations
                 builder.AddSwaggerConfig();
 
                 builder.AddCommonConfiguration();
+
+                builder.AddApplicationHealthChecks();
 
                 builder.AddAuthenticationWithAzureEntraId();
                 builder.AddAuthorizationWithAzureEntraId();
@@ -40,6 +51,8 @@ namespace Shortix.UrlShortener.WebApi.Configurations
                             .AllowAnyMethod();
                     });
                 });
+
+                builder.AddTelemetry();
 
                 return builder;
             }
@@ -78,20 +91,106 @@ namespace Shortix.UrlShortener.WebApi.Configurations
                     options.FallbackPolicy = options.DefaultPolicy;
                 });
             }
+
+            public WebApplicationBuilder AddApplicationHealthChecks()
+            {
+                builder.Services.AddHealthChecks()
+                    .AddAzureCosmosDB(optionsFactory: _ => new AzureCosmosDbHealthCheckOptions()
+                    {
+                        DatabaseId = builder.Configuration["CosmosDb:DatabaseName"]!,
+                    })
+                    .AddUrlGroup(new Uri(
+                        new Uri(
+                            builder.Configuration["TokenRangeService:BaseUrl"]!),
+                        "healthz"),
+                        name: "Token Range Service"
+                        );
+
+                return builder;
+            }
+
+            public WebApplicationBuilder AddTelemetry()
+            {
+                var telemetryConnectionString = builder.Configuration["APPINSIGHTS_CONNECTIONSTRING"];
+                var appName = builder.Environment.ApplicationName ?? "UrlShortenerApi";
+
+                builder.Logging.AddOpenTelemetry(options =>
+                {
+                    options.SetResourceBuilder(
+                        ResourceBuilder
+                            .CreateDefault()
+                            .AddService(serviceName: appName));
+
+                    options.IncludeFormattedMessage = true;
+
+                    if (telemetryConnectionString is not null)
+                        options.AddAzureMonitorLogExporter(o => { o.ConnectionString = telemetryConnectionString; });
+                    else
+                        options.AddConsoleExporter();
+                });
+
+                builder.Services.AddOpenTelemetry()
+                    .ConfigureResource(resource =>
+                         resource.AddService(serviceName: appName)
+                         ).WithTracing(tracing =>
+                         {
+                             tracing.AddSource("Azure.Cosmos.Operation");
+                             tracing.AddRedisInstrumentation();
+                             tracing.AddHttpClientInstrumentation();
+                             tracing.AddSource("Azure.*");
+                             tracing.AddAspNetCoreInstrumentation();
+
+                             if (telemetryConnectionString is not null)
+                             {
+                                 tracing.AddAzureMonitorTraceExporter(o =>
+                                 {
+                                     o.ConnectionString = telemetryConnectionString;
+                                 });
+                             }
+                             else
+                             {
+                                 tracing.AddConsoleExporter();
+                             }
+                         }).WithMetrics(metrics =>
+                         {
+                             metrics
+                                .AddAspNetCoreInstrumentation()
+                                .AddHttpClientInstrumentation();
+
+                             if (telemetryConnectionString is not null)
+                             {
+                                 metrics.AddAzureMonitorMetricExporter(o =>
+                                 {
+                                     o.ConnectionString = telemetryConnectionString;
+                                 });
+                             }
+                             else
+                             {
+                                 metrics.AddConsoleExporter();
+                             }
+                         });
+
+                return builder;
+            }
         }
 
         extension(WebApplication app)
         {
             public WebApplication UseApiConfiguration()
             {
+                app.UseCommonPipeline();
+
+                app.MapHealthChecks("/healthz", new HealthCheckOptions()
+                {
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+
                 app.UseSwaggerConfig();
 
                 app.UseCors(CorsPolicyName);
 
                 app.UseAuthentication();
                 app.UseAuthorization();
-
-                app.UseCommonPipeline();
 
                 return app;
             }

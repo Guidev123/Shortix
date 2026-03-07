@@ -5,7 +5,9 @@ using Shortix.CosmosDbTriggerFunction.Configurations;
 var builder = FunctionsApplication
     .CreateBuilder(args)
     .ConfigureFunctionsWebApplication()
+    .AddAppInsights()
     .AddKeyVault()
-    .AddCosmosDb();
+    .AddCosmosDb()
+    .AddFunctionHealthChecks();
 
 builder.Build().Run();

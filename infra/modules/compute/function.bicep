@@ -5,6 +5,17 @@ param keyVaultName string
 param appSettings array = []
 @secure()
 param storageAccountConnectionString string
+param logAnalyticsWorkspaceId string
+param subnetId string
+
+module appInsights '../telemetry/app-insights.bicep' = {
+  name: '${name}-AppInsightsDeployment'
+  params: {
+    location: location
+    name: 'appinsights-${name}'
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
+  }
+}
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: appServicePlanName
@@ -27,10 +38,23 @@ resource function 'Microsoft.Web/sites@2025-03-01' = {
     httpsOnly: true
     publicNetworkAccess: 'Enabled'
     siteConfig: {
+      healthCheckPath: '/api/healthz'
       linuxFxVersion: 'DOTNET-ISOLATED|8.0'
       alwaysOn: true
       ftpsState: 'FtpsOnly'
       minTlsVersion: '1.2'
+      publicNetworkAccess: 'Enabled'
+      ipSecurityRestrictionsDefaultAction: 'Deny'
+      scmIpSecurityRestrictions: [
+        {
+          name: 'AllowGHDeploy'
+          action: 'Allow'
+          priority: 100
+          tag: 'ServiceTag'
+          ipAddress: 'AzureCloud'
+        }
+      ]
+      scmIpSecurityRestrictionsDefaultAction: 'Deny'
       appSettings: concat(
         [
           {
@@ -61,6 +85,14 @@ resource function 'Microsoft.Web/sites@2025-03-01' = {
             name: 'WEBSITE_RUN_FROM_PACKAGE'
             value: '1'
           }
+          {
+            name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+            value: appInsights.outputs.instrumentationKey
+          }
+          {
+            name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+            value: appInsights.outputs.connectionString
+          }
         ],
         appSettings
       )
@@ -76,6 +108,14 @@ resource webAppConfig 'Microsoft.Web/sites/config@2025-03-01' = {
   name: 'web'
   properties: {
     scmType: 'GitHub'
+  }
+}
+
+resource functionVirtualNetwork 'Microsoft.Web/sites/networkConfig@2025-03-01' = {
+  parent: function
+  name: 'virtualNetwork'
+  properties: {
+    subnetResourceId: subnetId
   }
 }
 
